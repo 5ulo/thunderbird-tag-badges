@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Add +N counters with complete tag-name tooltips for count and width overflow.
+- Show only whole badges and re-fit on column or pane resizing.
+- Add independent table and card limits, migrating existing shared limits.
+- Add compact and normal badge sizes.
+- Add alphabetical and custom priority display order without changing Thunderbird tags.
+- Add quick links to both READMEs and expand integration coverage.
+
 ## 0.1.2
 
 - Set the public add-on name to Tag Badges for Thunderbird and author to EnjoyDev.

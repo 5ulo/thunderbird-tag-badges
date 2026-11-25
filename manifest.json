@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tag Badges for Thunderbird",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "EnjoyDev",
   "description": "Colorful tag badges in Thunderbird’s message list.",
   "browser_specific_settings": {

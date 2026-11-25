@@ -9,9 +9,16 @@
 <label class="check"><input type="checkbox" id="tableEnabled"> Zobraziť v tabuľkovom zozname</label>
 <label class="check"><input type="checkbox" id="cardEnabled"> Nahradiť ikony štítkov v spodnom riadku kariet</label>
 <label for="position">Poloha v tabuľkovom zozname</label><select id="position"><option value="before">Pred predmetom</option><option value="after">Za predmetom</option></select>
-<label for="maxTags">Maximálny počet štítkov na správu</label><input type="number" id="maxTags" min="0" max="1000" step="1" required aria-describedby="limitHelp"><p class="help" id="limitHelp">0 zobrazí všetky. Pri nedostatku miesta sa štítky orežú; úplný zoznam uvidíte po podržaní kurzora.</p>
+<label for="tableMaxTags">Maximálny počet štítkov v tabuľke</label><input type="number" id="tableMaxTags" min="0" max="1000" step="1" required>
+<label for="cardMaxTags">Maximálny počet štítkov na karte</label><input type="number" id="cardMaxTags" min="0" max="1000" step="1" required>
+<p class="help">0 = bez početného limitu. Zobrazia sa iba celé štítky, ktoré sa zmestia. Zvyšné označí +N; úplný zoznam nájdete po podržaní kurzora.</p>
+<label for="order">Poradie štítkov</label><select id="order"><option value="thunderbird">Poradie Thunderbirdu</option><option value="alphabetical">Abecedné</option><option value="priority">Vlastná priorita</option></select>
+<div id="priorityPanel"><label for="priority">Vlastná priorita — najvyššia hore</label><select id="priority" size="6" aria-describedby="priorityHelp"></select>
+<div class="actions"><button type="button" id="priorityUp">Posunúť hore</button><button type="button" id="priorityDown">Posunúť dole</button></div>
+<p class="help" id="priorityHelp">Vyberte štítok a posuňte ho. Mení sa iba poradie zobrazenia v doplnku. Nové štítky sa pridajú na koniec.</p></div>
 </fieldset>
 <fieldset><legend>Vzhľad</legend>
+<label for="size">Veľkosť štítkov</label><select id="size"><option value="compact">Kompaktná</option><option value="normal">Normálna</option></select>
 <label class="check"><input type="checkbox" id="pill"> Zaoblené štítky v tvare pilulky</label>
 <label for="radius">Zaoblenie rohov (px)</label><input type="number" id="radius" min="0" max="100" step="1" required>
 <label class="check"><input type="checkbox" id="nativeRowColors"> Zachovať natívne prefarbovanie riadkov podľa štítku</label>

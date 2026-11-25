@@ -12,3 +12,7 @@ messenger.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.settings) update();
 });
 update();
+
+messenger.runtime.onMessage.addListener(message => {
+  if (message?.command === "listTags") return messenger.tagBadges.listTags();
+});

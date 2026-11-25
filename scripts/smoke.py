@@ -30,6 +30,11 @@ user_pref("mailnews.database.global.indexer.enabled", false);
         'this.settings = this.shared.TagBadgeSettings.normalize(settings);',
         'this.settings = this.shared.TagBadgeSettings.normalize(settings);\n'
         'if (!this.smokeStarted) { this.smokeStarted = true; ' + fixture + ' }')
+    api = api.replace('listTags: async () =>', 'smokeOptionsResult: async result => { this.optionsResult = result; }, listTags: async () =>')
+    schema = json.loads((root / 'experiments/tagBadges/schema.json').read_text())
+    schema[0]['functions'].append({'name':'smokeOptionsResult', 'type':'function', 'async':True, 'parameters':[{'name':'result','type':'object','additionalProperties':True}]})
+    background = (root / 'background.js').read_text() + "\nmessenger.runtime.onMessage.addListener(message => { if (message?.command === 'smokeOptions') return messenger.tagBadges.smokeOptionsResult(message.result); });\n"
+    options = (root / 'options/options.js').read_text() + '\n' + (root / 'tests/options-smoke.js').read_text()
     manifest = json.loads((root / 'manifest.json').read_text())
     target = extensions / (manifest['browser_specific_settings']['gecko']['id'] + '.xpi')
     with ZipFile(target, 'w') as archive:
@@ -37,11 +42,12 @@ user_pref("mailnews.database.global.indexer.enabled", false);
         for directory in ('experiments', 'options'):
             files.extend(str(p.relative_to(root)) for p in (root / directory).rglob('*') if p.is_file())
         for name in files:
-            archive.writestr(name, api if name == 'experiments/tagBadges/api.js' else (root / name).read_bytes())
+            overrides = {'experiments/tagBadges/api.js':api, 'experiments/tagBadges/schema.json':json.dumps(schema), 'background.js':background, 'options/options.js':options}
+            archive.writestr(name, overrides.get(name, (root / name).read_bytes()))
     with (profile / 'process.log').open('w+') as log:
         process = subprocess.Popen([args.thunderbird, '-no-remote', '-headless', '-profile', str(profile)], stdout=log, stderr=log)
         try:
-            deadline = time.monotonic() + 60
+            deadline = time.monotonic() + 100
             while not report.exists() and process.poll() is None and time.monotonic() < deadline:
                 time.sleep(.25)
             if not report.exists():

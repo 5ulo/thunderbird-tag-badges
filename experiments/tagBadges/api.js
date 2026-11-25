@@ -37,7 +37,7 @@ return class extends ExtensionAPI {
       onUnloadWindow: win => this.detachWindow(win),
     });
     context.callOnClose(this);
-    return {tagBadges: {configure: async settings => {
+    return {tagBadges: {listTags: async () => MailServices.tags.getAllTags().map(({key, tag}) => ({key, tag})), configure: async settings => {
       this.settings = this.shared.TagBadgeSettings.normalize(settings);
       for (const state of this.documents.values()) state.schedule();
     }}};
@@ -81,20 +81,28 @@ return class extends ExtensionAPI {
         min-width: 0; max-width: 100%; overflow: hidden; vertical-align: middle; pointer-events: auto; }
       .tb-tag-badge { display: inline-block; flex: 0 0 auto; box-sizing: border-box;
         padding: 1px 6px; font-size: 0.85em; line-height: 1.25; font-weight: 500;
-        max-width: 24ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         background: var(--tb-badge-bg) !important; color: var(--tb-badge-fg) !important;
         border-radius: var(--tb-badge-radius); opacity: 1 !important; }
-      .tb-table-badges .subject-line { display: flex; align-items: center; min-width: 0; }
+      .tb-tag-badges.tb-size-normal > * { font-size: 1em; padding: 2px 8px; }
+      .tb-tag-badge[hidden], .tb-tag-more[hidden] { display: none !important; }
+      .tb-tag-more { display: inline-block; flex: 0 0 auto; padding: 1px 6px;
+        font-size: .85em; line-height: 1.25; border-radius: 999px;
+        background: var(--tree-view-color, CanvasText); color: var(--tree-view-bg, Canvas); }
+      .tb-table-badges .subject-line { display: flex; flex: 1; overflow: hidden;
+        align-items: center; min-width: 0; }
+      .tb-table-badges .tb-tag-badges { max-width: max(0px, calc(100% - 52px)); }
       .tb-table-badges .subject-line > span { flex: 0 1 auto; min-width: 0; overflow: hidden;
         text-overflow: ellipsis; white-space: nowrap; }
       .tb-table-badges .subject-line > img { flex-shrink: 0; }
       /* Give badges their intrinsic width; only the subject yields space.
          Shrinking both by their content width clips tags for long subjects. */
-      .subject-line > .tb-tag-badges { flex: 0 0 auto; }
+      .subject-line > .tb-tag-badges { flex: 0 0 auto; width: max-content; }
       .tb-tags-before { margin-inline-end: 6px; }
       .tb-tags-after { margin-inline-start: 6px; }
       tr.tb-card-badges .thread-card-tags-info { display: none !important; }
-      tr.tb-card-badges .thread-card-icon-info { min-width: 0; }
+      tr.tb-card-badges .thread-card-icon-info { min-width: 0; flex: 1; overflow: hidden; }
+      tr.tb-card-badges .thread-card-icon-info > :not(.tb-tag-badges) { flex-shrink: 0; }
       tr.tb-card-badges .thread-card-icon-info > .tb-tag-badges { flex-shrink: 1; }
       /* Override only the native tag variables, preserving hover/selection rules. */
       #threadTree.tb-no-tag-colors tr { --tag-color: initial !important;
@@ -108,9 +116,10 @@ return class extends ExtensionAPI {
       if (destroyed) return;
       observer.disconnect();
       try {
+        observeColumns();
         tree.classList.toggle("tb-no-tag-colors", !this.settings.nativeRowColors);
         for (const row of tree.querySelectorAll('tr[is="thread-row"], tr[is="thread-card"]')) {
-          try { this.renderRow(row); } catch (error) { this.log("Nepodarilo sa vykresliť riadok", error); }
+          try { this.renderRow(row); this.fitRow(row); } catch (error) { this.log("Nepodarilo sa vykresliť riadok", error); }
         }
       } finally {
         if (!destroyed) observer.observe(tree, {subtree: true, childList: true,
@@ -119,9 +128,26 @@ return class extends ExtensionAPI {
     };
     const schedule = () => { if (!destroyed && !frame) frame = win.requestAnimationFrame(render); };
     const observer = new win.MutationObserver(schedule);
+    // Column resizing and pane resizing must re-fit even when no rows change.
+    const widths = new WeakMap();
+    const resize = new win.ResizeObserver(entries => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        if (widths.get(entry.target) !== width) { widths.set(entry.target, width); schedule(); }
+      }
+    });
+    resize.observe(tree);
+    const resizeTargets = new Set([tree]);
+    const observeColumns = () => {
+      for (const cell of resizeTargets) if (!cell.isConnected) { resize.unobserve(cell); resizeTargets.delete(cell); }
+      for (const cell of tree.querySelectorAll('th, .subjectcol-column, .subject-line, .card-container, .thread-card-icon-info')) {
+        if (!resizeTargets.has(cell)) { resizeTargets.add(cell); resize.observe(cell); }
+      }
+    };
     const destroy = () => {
       destroyed = true;
       observer.disconnect();
+      resize.disconnect();
       if (frame) win.cancelAnimationFrame(frame);
       win.removeEventListener("unload", destroy);
       tree.classList.remove("tb-no-tag-colors");
@@ -151,14 +177,15 @@ return class extends ExtensionAPI {
     const keywords = new Set(header.getStringProperty("keywords").split(/\s+/));
     if (header.label) keywords.add(`$label${header.label}`);
     this.tags ||= MailServices.tags.getAllTags();
-    const all = this.tags.filter(tag => keywords.has(tag.key));
-    const shown = this.settings.maxTags ? all.slice(0, this.settings.maxTags) : all;
+    const all = this.shared.TagBadgeSettings.sortTags(this.tags.filter(tag => keywords.has(tag.key)), this.settings);
+    const limit = card ? this.settings.cardMaxTags : this.settings.tableMaxTags;
+    const shown = limit ? all.slice(0, limit) : all;
     const subject = row.querySelector(".subject-line > span");
     const native = row.querySelector(".thread-card-tags-info");
     if (!shown.length || (card ? !native : !subject)) { old?.remove(); return; }
     const doc = row.ownerDocument;
     const badges = old || doc.createElement("div");
-    badges.className = `tb-tag-badges ${card ? "" : `tb-tags-${this.settings.position}`}`;
+    badges.className = `tb-tag-badges tb-size-${this.settings.size} ${card ? "" : `tb-tags-${this.settings.position}`}`;
     badges.replaceChildren();
     badges.title = all.map(tag => tag.tag).join(", ");
     badges.setAttribute("aria-label", badges.title);
@@ -172,6 +199,10 @@ return class extends ExtensionAPI {
       badge.style.setProperty("--tb-badge-radius", this.settings.pill ? "999px" : `${this.settings.radius}px`);
       badges.append(badge);
     }
+    badges.dataset.total = all.length;
+    const more = doc.createElement("span");
+    more.className = "tb-tag-more";
+    badges.append(more);
     if (card) {
       native.before(badges);
       row.classList.add("tb-card-badges");
@@ -180,6 +211,42 @@ return class extends ExtensionAPI {
       if (this.settings.position === "before") subject.before(badges);
       else subject.after(badges);
     }
+  }
+
+  fitRow(row) {
+    const group = row.querySelector(".tb-tag-badges");
+    if (!group) return;
+    const badges = [...group.querySelectorAll(".tb-tag-badge")];
+    const more = group.querySelector(".tb-tag-more");
+    const total = Number(group.dataset.total);
+    group.style.removeProperty("visibility");
+    for (const badge of badges) badge.hidden = false;
+    more.hidden = total === badges.length;
+    more.textContent = `+${total - badges.length}`;
+    const available = group.getBoundingClientRect().width;
+    const gap = parseFloat(row.ownerDocument.defaultView.getComputedStyle(group).gap) || 0;
+    const widths = badges.map(b => b.getBoundingClientRect().width);
+    let count = badges.length;
+    const prefix = [0];
+    for (const width of widths) prefix.push(prefix.at(-1) + width);
+    const width = n => prefix[n] + Math.max(0, n - 1) * gap;
+    while (count >= 0) {
+      const hidden = total - count;
+      more.hidden = !hidden;
+      more.textContent = `+${hidden}`;
+      const required = width(count) + (hidden ? more.getBoundingClientRect().width + (count ? gap : 0) : 0);
+      if (required <= available + .25) break;
+      count--;
+    }
+    count = Math.max(0, count);
+    for (const [i, badge] of badges.entries()) badge.hidden = i >= count;
+    const hidden = total - count;
+    more.hidden = !hidden;
+    more.textContent = `+${hidden}`;
+    more.title = group.title;
+    more.setAttribute("aria-label", `${hidden} — ${group.title}`);
+    // Even the counter cannot be displayed in a pane narrower than the counter.
+    if (hidden && more.getBoundingClientRect().width > available + .25) group.style.visibility = "hidden";
   }
 
   onShutdown(isAppShutdown) {
