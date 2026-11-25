@@ -10,6 +10,7 @@ from zipfile import ZipFile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--thunderbird', default='/Applications/Thunderbird.app/Contents/MacOS/thunderbird')
+parser.add_argument('--fixture', type=Path, help='Run an additional integration fixture in the isolated test XPI')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory(prefix='tag-badges-test-') as temp:
@@ -27,7 +28,7 @@ user_pref("mailnews.start_page.enabled", false);
 user_pref("mailnews.start_page.url", "about:blank");
 user_pref("mailnews.database.global.indexer.enabled", false);
 ''')
-    fixture = (root / 'tests/thunderbird-smoke.js').read_text().replace('SMOKE_RESULT_PATH', json.dumps(str(report)))
+    fixture = (args.fixture or (root / 'tests/thunderbird-smoke.js')).read_text().replace('SMOKE_RESULT_PATH', json.dumps(str(report)))
     api = (root / 'experiments/tagBadges/api.js').read_text().replace(
         'this.settings = this.shared.TagBadgeSettings.normalize(settings);',
         'this.settings = this.shared.TagBadgeSettings.normalize(settings);\n'

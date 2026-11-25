@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tag Badges for Thunderbird",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "EnjoyDev",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {

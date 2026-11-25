@@ -228,6 +228,9 @@ return class extends ExtensionAPI {
     this.documents.set(doc, {schedule, destroy});
     win.addEventListener("unload", destroy, {once: true});
     render();
+    // Refill existing rows through Thunderbird itself. Older add-on versions
+    // could leave their native subject span empty after a recycled-row redraw.
+    if (tree.view) tree.invalidate?.();
     this.log("Attached to about:3pane");
   }
 
@@ -259,7 +262,9 @@ return class extends ExtensionAPI {
     badges.title = all.map(tag => tag.tag).join(", ");
     badges.setAttribute("aria-label", badges.title);
     for (const tag of shown) {
-      const badge = doc.createElement("span");
+      // Thunderbird fills the subject with .subject-line.querySelector("span").
+      // Badge descendants must never match that native selector, even hidden ones.
+      const badge = doc.createElement("div");
       badge.className = "tb-tag-badge";
       badge.textContent = tag.tag;
       const color = /^#[0-9a-f]{6}$/i.test(tag.color) ? tag.color : "#606060";
@@ -269,7 +274,7 @@ return class extends ExtensionAPI {
       badges.append(badge);
     }
     badges.dataset.total = all.length;
-    const more = doc.createElement("span");
+    const more = doc.createElement("div");
     more.className = "tb-tag-more";
     badges.append(more);
     if (card) {

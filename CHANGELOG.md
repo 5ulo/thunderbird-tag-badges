@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+- Fix subjects disappearing during tag Quick Filter, row recycling and native redraws when badges precede the subject.
+- Keep injected badge markup out of Thunderbird’s native subject-span selector, including hidden overflow counters.
+- Ask Thunderbird to refill existing rows on attachment to restore subjects left blank by older versions, without changing message contents.
+- Add a regression test with 60 tagged messages, repeated tag filters, scrolling, redraws, both badge positions and recovery of an empty subject.
+
 ## 0.3.0
 
 - Support Thunderbird 161.0 while retaining compatibility with Thunderbird 128.

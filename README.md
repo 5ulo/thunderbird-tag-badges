@@ -35,7 +35,7 @@ cd thunderbird-tag-badges
 python3 scripts/build.py
 ```
 
-In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.3.0.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
+In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.3.1.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
 
 Build output in `dist/` is local and excluded from Git.
 
@@ -77,6 +77,7 @@ Unit tests require Node.js:
 node --test tests/*.test.cjs
 python3 scripts/build.py
 python3 scripts/smoke.py
+python3 scripts/smoke.py --fixture tests/quick-filter-smoke.js
 python3 scripts/smoke_restart.py
 # After publishing the current version, test native GitHub updates:
 python3 scripts/smoke_updates.py
