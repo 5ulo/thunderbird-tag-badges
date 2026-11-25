@@ -44,30 +44,33 @@ user_pref("mailnews.database.global.indexer.enabled", false);
                   'browser_specific_settings': {'gecko': {'id': 'updater-test@local.invalid', 'strict_min_version': '128.0', 'strict_max_version': '128.*'}},
                   'background': {'scripts': ['background.js']},
                   'experiment_apis': {'updaterProbe': {'schema': 'schema.json', 'parent': {'scopes': ['addon_parent'], 'paths': [['updaterProbe']], 'script': 'api.js'}}}}
-    fixture = (root / 'tests/updater-smoke.js').read_text().replace('ADDON_ID', json.dumps(addon_id)).replace('EXPECTED_VERSION', json.dumps(version)).replace('REPORT_PATH', json.dumps(str(report)))
+    fixture = (root / 'tests/updater-smoke.js').read_text().replace('ADDON_ID', json.dumps(addon_id)).replace('EXPECTED_VERSION', json.dumps(version)).replace('REPORT_PATH', json.dumps(str(report))).replace('MARKER_PATH', json.dumps(str(profile / 'updated-settings.json')))
     with ZipFile(profile / 'extensions/updater-test@local.invalid.xpi', 'w') as archive:
         archive.writestr('manifest.json', json.dumps(controller))
         archive.writestr('api.js', fixture)
         archive.writestr('background.js', 'messenger.updaterProbe.run();')
         archive.writestr('schema.json', json.dumps([{'namespace': 'updaterProbe', 'functions': [{'name': 'run', 'type': 'function', 'async': True, 'parameters': []}]}]))
-    with (profile / 'process.log').open('w+') as log:
-        process = subprocess.Popen([args.thunderbird, '-no-remote', '-headless', '-profile', str(profile)], stdout=log, stderr=log)
-        try:
-            deadline = time.monotonic() + 100
-            while not report.exists() and process.poll() is None and time.monotonic() < deadline:
-                time.sleep(.25)
-            if not report.exists():
-                log.seek(0)
-                raise SystemExit('No updater test report:\n' + log.read())
-            result = json.loads(report.read_text())
-            print(json.dumps(result, indent=2, ensure_ascii=False))
-            if not result['ok']:
-                raise SystemExit(1)
-        finally:
-            if process.poll() is None:
-                process.terminate()
-                try:
-                    process.wait(timeout=8)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait()
+    for attempt in range(2):
+        report.unlink(missing_ok=True)
+        with (profile / f'process-{attempt}.log').open('w+') as log:
+            process = subprocess.Popen([args.thunderbird, '-no-remote', '-headless', '-profile', str(profile)], stdout=log, stderr=log)
+            try:
+                deadline = time.monotonic() + 100
+                while not report.exists() and process.poll() is None and time.monotonic() < deadline:
+                    time.sleep(.25)
+                if not report.exists():
+                    log.seek(0)
+                    raise SystemExit('No updater test report:\n' + log.read())
+                result = json.loads(report.read_text())
+                print(json.dumps(result, indent=2, ensure_ascii=False), flush=True)
+                if not result['ok']:
+                    raise SystemExit(1)
+                process.wait(timeout=12)
+            finally:
+                if process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=8)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()

@@ -1,11 +1,11 @@
 /* global ChromeUtils, ExtensionAPI, Services */
 var tagBadges = (() => {
-const {ExtensionSupport} = ChromeUtils.importESModule("resource:///modules/ExtensionSupport.sys.mjs");
 const {AddonManager} = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
 const {MailServices} = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 return class extends ExtensionAPI {
   getAPI(context) {
     this.context = context;
+    this.closed = false;
     this.shared = {};
     Services.scriptloader.loadSubScript(context.extension.rootURI.resolve("settings.js"), this.shared);
     this.settings = this.shared.TagBadgeSettings.normalize();
@@ -15,7 +15,7 @@ return class extends ExtensionAPI {
     // Browser load events do not always cross the embedded browser boundary.
     // Observe newly created documents too, including the first startup pane.
     this.documentObserver = doc => {
-      if (doc.documentURI !== "about:3pane") return;
+      if (doc.documentURI !== "about:3pane" || this.documents.has(doc) || this.pendingDocuments.has(doc)) return;
       const ready = () => {
         this.pendingDocuments.delete(doc);
         this.attachDocument(doc);
@@ -31,18 +31,22 @@ return class extends ExtensionAPI {
       for (const state of this.documents.values()) state.schedule();
     };
     Services.prefs.addObserver("mailnews.tags.", this.tagObserver);
-    this.listenerId = `${context.extension.id}:badges`;
-    ExtensionSupport.registerWindowListener(this.listenerId, {
-      chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
-      onLoadWindow: win => this.attachWindow(win),
-      onUnloadWindow: win => this.detachWindow(win),
-    });
+    // Observe windows directly. Other extensions may have initialized
+    // ExtensionSupport while a main window was still pending its load event.
+    this.windowObserver = {
+      onOpenWindow: appWindow => this.attachWindow(appWindow.docShell.domWindow),
+      onCloseWindow: appWindow => this.detachWindow(appWindow.docShell.domWindow),
+    };
+    Services.wm.addListener(this.windowObserver);
+    this.rescanWindows();
     context.callOnClose(this);
     return {tagBadges: {listTags: async () => MailServices.tags.getAllTags().map(({key, tag}) => ({key, tag})), configure: async settings => {
       this.hiddenTagsLabel = settings.hiddenTagsLabel || "Hidden tags";
       this.detailsDescription = settings.detailsDescription || "";
-      await this.installDetailsDescription();
       this.settings = this.shared.TagBadgeSettings.normalize(settings);
+      this.rescanWindows();
+      try { await this.installDetailsDescription(); }
+      catch (error) { console.error("[Tag Badges] Could not update add-on description", error); }
       for (const state of this.documents.values()) state.schedule();
     }}};
   }
@@ -92,23 +96,37 @@ return class extends ExtensionAPI {
     if (this.settings.debug) console.log("[Tag Badges]", message, error || "");
   }
 
+  scanDocument(doc) {
+    if (!doc || doc.nodeType !== 9 || this.closed) return;
+    this.documentObserver(doc);
+    for (const browser of doc.querySelectorAll("browser, iframe")) {
+      try { if (browser.contentDocument !== doc) this.scanDocument(browser.contentDocument); }
+      catch (error) { this.log("Could not inspect embedded document", error); }
+    }
+  }
+
+  rescanWindows() {
+    for (const win of Services.wm.getEnumerator(null)) {
+      if (this.windows.has(win)) this.scanDocument(win.document);
+      else this.attachWindow(win);
+    }
+  }
+
   attachWindow(win) {
-    const scan = doc => {
-      if (!doc || doc.nodeType !== 9) return;
-      if (doc.location?.href === "about:3pane") this.attachDocument(doc);
-      for (const browser of doc.querySelectorAll("browser, iframe")) {
-        try { if (browser.contentDocument !== doc) scan(browser.contentDocument); } catch (_) {}
-      }
-    };
-    const load = event => scan(event.target);
+    if (this.windows.has(win) || this.closed) return;
+    const load = event => this.scanDocument(event.target);
+    win.addEventListener("DOMContentLoaded", load, true);
     win.addEventListener("load", load, true);
     this.windows.set(win, load);
-    scan(win.document);
+    this.scanDocument(win.document);
   }
 
   detachWindow(win) {
     const load = this.windows.get(win);
-    if (load) win.removeEventListener("load", load, true);
+    if (load) {
+      win.removeEventListener("DOMContentLoaded", load, true);
+      win.removeEventListener("load", load, true);
+    }
     this.windows.delete(win);
     for (const [doc, state] of this.documents) {
       if (doc.defaultView?.top === win || !doc.defaultView) state.destroy();
@@ -146,7 +164,9 @@ return class extends ExtensionAPI {
       .tb-tags-before { margin-inline-end: 6px; }
       .tb-tags-after { margin-inline-start: 6px; }
       tr.tb-card-badges .thread-card-tags-info { display: none !important; }
-      tr.tb-card-badges .thread-card-icon-info { min-width: 0; flex: 1; overflow: hidden; }
+      #threadTree tr.tb-card-badges .thread-card-icon-info { min-width: 0; flex: 1;
+        overflow: hidden; justify-content: flex-end !important; }
+      #threadTree tr.tb-card-badges .thread-card-icon-info > button { margin-inline: 0; }
       tr.tb-card-badges .thread-card-icon-info > :not(.tb-tag-badges) { flex-shrink: 0; }
       tr.tb-card-badges .thread-card-icon-info > .tb-tag-badges { flex-shrink: 1; }
       /* Override only the native tag variables, preserving hover/selection rules. */
@@ -309,7 +329,7 @@ return class extends ExtensionAPI {
     Services.obs.removeObserver(this.documentObserver, "document-element-inserted");
     for (const [doc, ready] of this.pendingDocuments) doc.removeEventListener("DOMContentLoaded", ready);
     this.pendingDocuments.clear();
-    ExtensionSupport.unregisterWindowListener(this.listenerId);
+    Services.wm.removeListener(this.windowObserver);
     Services.prefs.removeObserver("mailnews.tags.", this.tagObserver);
     for (const win of [...this.windows.keys()]) this.detachWindow(win);
     for (const state of [...this.documents.values()]) state.destroy();

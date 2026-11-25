@@ -24,6 +24,26 @@ var updaterProbe = class extends ExtensionAPI {
     try {
       await pause(1800);
       let addon = await AddonManager.getAddonByID(id);
+      if (await IOUtils.exists(MARKER_PATH)) {
+        const saved = JSON.parse(await IOUtils.readUTF8(MARKER_PATH));
+        check(addon?.isActive && addon.version === EXPECTED_VERSION, 'updated add-on active after full application restart');
+        const db = await storage();
+        const {settings} = await db.get('settings'); db.close();
+        check(JSON.stringify(settings) === JSON.stringify(saved), 'updated preferences preserved after full application restart');
+        const pane = win.document.getElementById('tabmail').currentAbout3Pane;
+        check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'updated integration attached on restart before folder interaction');
+        pane.displayFolder(MailServices.accounts.localFoldersServer.rootFolder.getChildNamed('UpdateTest').URI);
+        pane.threadPane.updateThreadView('cards'); await pause(1600);
+        const row = pane.document.querySelector('#threadTree tr[is="thread-card"]');
+        check(!!row?.querySelector('.tb-tag-badges'), 'badges present after update and full application restart');
+        const info = row.querySelector('.thread-card-icon-info').getBoundingClientRect();
+        const star = row.querySelector('.button-star').getBoundingClientRect();
+        const group = row.querySelector('.tb-tag-badges').getBoundingClientRect();
+        check(Math.abs(star.right-info.right) <= 2 && star.left-group.right >= -1 && star.left-group.right <= 14, 'updated card star and badges remain right aligned after restart');
+        await IOUtils.writeUTF8(REPORT_PATH, JSON.stringify({ok:true,results}));
+        win.setTimeout(() => Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit), 100);
+        return;
+      }
       check(addon?.version === '0.0.0', 'isolated bootstrap version installed');
       const saved = {tableEnabled:true, cardEnabled:true, tableMaxTags:1, cardMaxTags:2, position:'after', size:'normal', order:'alphabetical', priority:[], pill:false, radius:7, nativeRowColors:false, debug:false};
       const initialStorage = await storage();
@@ -57,9 +77,11 @@ var updaterProbe = class extends ExtensionAPI {
       check(!!row?.querySelector('.tb-tag-badges'), 'badges reconnect to existing message pane after update');
       check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'row color preference applies after update');
       check(typeof addon.getFullDescription === 'function', 'full description available after native update');
+      await IOUtils.writeUTF8(MARKER_PATH, JSON.stringify(saved));
       await IOUtils.writeUTF8(REPORT_PATH, JSON.stringify({ok:true,results}));
     } catch (error) {
       await IOUtils.writeUTF8(REPORT_PATH, JSON.stringify({ok:false,results,error:String(error),stack:error.stack}));
     }
+    win.setTimeout(() => Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit), 100);
   }}}; }
 };

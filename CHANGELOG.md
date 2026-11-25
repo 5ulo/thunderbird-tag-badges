@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3
+
+- Keep card badges directly beside the star at the right edge, overriding native spacing and automatic button margins.
+- Watch windows independently of shared extension window listeners and wait for partially loaded message panes.
+- Re-scan existing windows when preferences are applied, allowing missed panes to recover without reinstalling.
+- Isolate optional Details metadata failures from message-list initialization.
+- Add regression tests for pending startup windows, saving preferences, card geometry and repeated real process startups.
+
 ## 0.2.2
 
 - Show a localized full description in this add-on’s native Details tab while enabled.
