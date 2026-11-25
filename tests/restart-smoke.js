@@ -26,7 +26,7 @@ var restartProbe = class extends ExtensionAPI {
         check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'integration attached on subsequent startup before folder interaction');
       }
       pane.displayFolder(root.getChildNamed('RestartTest').URI);
-      pane.threadPane.updateThreadView('cards'); await pause(1800);
+      Services.prefs.setIntPref('mail.threadpane.listview', 0); pane.threadPane.updateThreadView('cards'); await pause(1800);
       let row = pane.document.querySelector('#threadTree tr[is="thread-card"]');
       check(!!row?.querySelector('.tb-tag-badges'), 'badges present on ' + (first ? 'first' : 'subsequent') + ' startup');
       check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'row color preference active after startup');

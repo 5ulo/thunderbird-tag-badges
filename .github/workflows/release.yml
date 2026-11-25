@@ -44,7 +44,7 @@ jobs:
 
           ## Compatibility
 
-          Thunderbird **128.*** only. Validated on **128.9.1 on macOS**. Newer major versions are not supported by this package.
+          Thunderbird **{manifest['browser_specific_settings']['gecko']['strict_min_version']}–{manifest['browser_specific_settings']['gecko']['strict_max_version']}**. Validated on **128.9.1 and 161.0 on macOS**. Future major versions beyond this range are not supported by this package.
 
           ## Installation
 

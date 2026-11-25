@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
   "name": "Tag Badges for Thunderbird",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "author": "EnjoyDev",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
     "gecko": {
       "id": "tag-badges-thread-pane@local.invalid",
       "strict_min_version": "128.0",
-      "strict_max_version": "128.*",
+      "strict_max_version": "161.*",
       "update_url": "https://github.com/5ulo/thunderbird-tag-badges/releases/latest/download/updates.json"
     }
   },

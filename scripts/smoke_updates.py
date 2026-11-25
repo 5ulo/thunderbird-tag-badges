@@ -16,6 +16,7 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--thunderbird', default='/Applications/Thunderbird.app/Contents/MacOS/thunderbird')
 parser.add_argument('--fresh-manifest', action='store_true', help='Bypass cached latest-release metadata in the test bootstrap immediately after publishing')
+parser.add_argument('--bootstrap-xpi', type=Path, help='Use an older incompatible XPI to test recovery after a Thunderbird upgrade')
 args = parser.parse_args()
 manifest = json.loads((root / 'manifest.json').read_text())
 version = manifest['version']
@@ -33,22 +34,27 @@ user_pref("mailnews.start_page.enabled", false);
 user_pref("mailnews.start_page.url", "about:blank");
 user_pref("mailnews.database.global.indexer.enabled", false);
 ''')
-    with ZipFile(package) as original, ZipFile(profile / 'extensions' / (addon_id + '.xpi'), 'w') as bootstrap:
+    bootstrap_version = '0.0.0'
+    with ZipFile(args.bootstrap_xpi or package) as original, ZipFile(profile / 'extensions' / (addon_id + '.xpi'), 'w') as bootstrap:
         for name in original.namelist():
             data = original.read(name)
             if name == 'manifest.json':
                 test_manifest = json.loads(data)
-                test_manifest['version'] = '0.0.0'
+                if args.bootstrap_xpi:
+                    assert test_manifest['browser_specific_settings']['gecko']['id'] == addon_id
+                    bootstrap_version = test_manifest['version']
+                else:
+                    test_manifest['version'] = '0.0.0'
                 if args.fresh_manifest:
                     # Test bootstrap only; installed production XPI keeps its stable URL.
                     test_manifest['browser_specific_settings']['gecko']['update_url'] += '?probe=' + str(time.time_ns())
                 data = json.dumps(test_manifest).encode()
             bootstrap.writestr(name, data)
     controller = {'manifest_version': 2, 'name': 'Native updater test', 'version': '1.0',
-                  'browser_specific_settings': {'gecko': {'id': 'updater-test@local.invalid', 'strict_min_version': '128.0', 'strict_max_version': '128.*'}},
+                  'browser_specific_settings': {'gecko': {'id': 'updater-test@local.invalid', 'strict_min_version': '128.0', 'strict_max_version': manifest['browser_specific_settings']['gecko']['strict_max_version']}},
                   'background': {'scripts': ['background.js']},
                   'experiment_apis': {'updaterProbe': {'schema': 'schema.json', 'parent': {'scopes': ['addon_parent'], 'paths': [['updaterProbe']], 'script': 'api.js'}}}}
-    fixture = (root / 'tests/updater-smoke.js').read_text().replace('ADDON_ID', json.dumps(addon_id)).replace('EXPECTED_VERSION', json.dumps(version)).replace('REPORT_PATH', json.dumps(str(report))).replace('MARKER_PATH', json.dumps(str(profile / 'updated-settings.json')))
+    fixture = (root / 'tests/updater-smoke.js').read_text().replace('ADDON_ID', json.dumps(addon_id)).replace('EXPECTED_VERSION', json.dumps(version)).replace('REPORT_PATH', json.dumps(str(report))).replace('MARKER_PATH', json.dumps(str(profile / 'updated-settings.json'))).replace('BOOTSTRAP_VERSION', json.dumps(bootstrap_version)).replace('INCOMPATIBLE_BOOTSTRAP', str(bool(args.bootstrap_xpi)).lower())
     with ZipFile(profile / 'extensions/updater-test@local.invalid.xpi', 'w') as archive:
         archive.writestr('manifest.json', json.dumps(controller))
         archive.writestr('api.js', fixture)

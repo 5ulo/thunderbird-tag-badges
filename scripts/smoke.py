@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the integration fixture in Thunderbird 128 using a NEW temporary profile."""
+"""Run the integration fixture in Thunderbird using a NEW temporary profile."""
 import argparse
 import json
 import subprocess
@@ -17,7 +17,9 @@ with tempfile.TemporaryDirectory(prefix='tag-badges-test-') as temp:
     extensions = profile / 'extensions'
     extensions.mkdir()
     report = profile / 'result.json'
-    (profile / 'user.js').write_text('''user_pref("extensions.autoDisableScopes", 0);
+    (profile / 'user.js').write_text('''user_pref("devtools.console.stdout.chrome", true);
+user_pref("extensions.logging.enabled", true);
+user_pref("extensions.autoDisableScopes", 0);
 user_pref("extensions.enabledScopes", 15);
 user_pref("mail.shell.checkDefaultClient", false);
 user_pref("mail.provider.suppress_dialog_on_startup", true);
@@ -31,6 +33,8 @@ user_pref("mailnews.database.global.indexer.enabled", false);
         'this.settings = this.shared.TagBadgeSettings.normalize(settings);\n'
         'if (!this.smokeStarted) { this.smokeStarted = true; ' + fixture + ' }')
     api = api.replace('listTags: async () =>', 'smokeOptionsResult: async result => { this.optionsResult = result; }, listTags: async () =>')
+    diagnostic = str(profile / 'api-diagnostic.log')
+    api = "IOUtils.writeUTF8(" + json.dumps(diagnostic) + ", 'API script loaded\\n');\nServices.console.registerListener({observe: message => { if (/tag.badges|Tag Badges|is not defined/.test(message.message)) IOUtils.writeUTF8(" + json.dumps(diagnostic) + ", message.message + '\\n', {mode:'append'}); }});\n" + api
     schema = json.loads((root / 'experiments/tagBadges/schema.json').read_text())
     schema[0]['functions'].append({'name':'smokeOptionsResult', 'type':'function', 'async':True, 'parameters':[{'name':'result','type':'object','additionalProperties':True}]})
     background = (root / 'background.js').read_text() + "\nmessenger.runtime.onMessage.addListener(message => { if (message?.command === 'smokeOptions') return messenger.tagBadges.smokeOptionsResult(message.result); });\n"
@@ -52,7 +56,7 @@ user_pref("mailnews.database.global.indexer.enabled", false);
                 time.sleep(.25)
             if not report.exists():
                 log.seek(0)
-                raise SystemExit('No test report. Thunderbird output:\n' + log.read())
+                raise SystemExit('No test report. Thunderbird output:\n' + log.read() + '\n' + ((profile / 'api-diagnostic.log').read_text() if (profile / 'api-diagnostic.log').exists() else 'API never loaded'))
             result = json.loads(report.read_text())
             print(json.dumps(result, indent=2, ensure_ascii=False))
             if not result['ok']:

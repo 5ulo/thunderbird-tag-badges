@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Support Thunderbird 161.0 while retaining compatibility with Thunderbird 128.
+- Adapt cards to the modern thread-card-tags component and dynamic two-row/three-row layout.
+- Load only the extension’s fixed local settings module using explicit script-loader options required by newer Gecko versions; global security preferences are unchanged.
+- Raise the compatibility ceiling to 161.* and update localized compatibility information.
+- Test both 128.9.1 and 161.0, including modern cards and repeated startup; extend updater tests to cover an incompatible older add-on.
+
 ## 0.2.3
 
 - Keep card badges directly beside the star at the right edge, overriding native spacing and automatic button margins.

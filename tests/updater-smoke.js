@@ -33,7 +33,7 @@ var updaterProbe = class extends ExtensionAPI {
         const pane = win.document.getElementById('tabmail').currentAbout3Pane;
         check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'updated integration attached on restart before folder interaction');
         pane.displayFolder(MailServices.accounts.localFoldersServer.rootFolder.getChildNamed('UpdateTest').URI);
-        pane.threadPane.updateThreadView('cards'); await pause(1600);
+        Services.prefs.setIntPref('mail.threadpane.listview', 0); pane.threadPane.updateThreadView('cards'); await pause(1600);
         const row = pane.document.querySelector('#threadTree tr[is="thread-card"]');
         check(!!row?.querySelector('.tb-tag-badges'), 'badges present after update and full application restart');
         const info = row.querySelector('.thread-card-icon-info').getBoundingClientRect();
@@ -44,12 +44,15 @@ var updaterProbe = class extends ExtensionAPI {
         win.setTimeout(() => Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit), 100);
         return;
       }
-      check(addon?.version === '0.0.0', 'isolated bootstrap version installed');
+      check(addon?.version === BOOTSTRAP_VERSION, 'isolated bootstrap version installed');
+      if (INCOMPATIBLE_BOOTSTRAP) check(addon.appDisabled && !addon.isActive, 'old add-on disabled by Thunderbird compatibility check');
       const saved = {tableEnabled:true, cardEnabled:true, tableMaxTags:1, cardMaxTags:2, position:'after', size:'normal', order:'alphabetical', priority:[], pill:false, radius:7, nativeRowColors:false, debug:false};
-      const initialStorage = await storage();
-      const changes = await initialStorage.set({settings:saved});
-      ExtensionStorageIDB.notifyListeners(id, changes);
-      initialStorage.close();
+      if (!INCOMPATIBLE_BOOTSTRAP) {
+        const initialStorage = await storage();
+        const changes = await initialStorage.set({settings:saved});
+        ExtensionStorageIDB.notifyListeners(id, changes);
+        initialStorage.close();
+      }
       try { MailServices.accounts.localFoldersServer; } catch (_) { MailServices.accounts.createLocalMailAccount(); }
       const root = MailServices.accounts.localFoldersServer.rootFolder;
       root.createSubfolder('UpdateTest', null); await pause(500);
@@ -57,7 +60,7 @@ var updaterProbe = class extends ExtensionAPI {
       folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage('From - Wed Nov 25 12:00:00 2026\r\nFrom: test@example.invalid\r\nSubject: Native update test\r\nMessage-ID: <native-update@example.invalid>\r\nDate: Wed, 25 Nov 2026 12:00:00 +0100\r\n\r\nTest.\r\n');
       [...folder.messages][0].setStringProperty('keywords', '$label1 $label2');
       const pane = win.document.getElementById('tabmail').currentAbout3Pane;
-      pane.displayFolder(folder.URI); pane.threadPane.updateThreadView('table');
+      pane.displayFolder(folder.URI); Services.prefs.setIntPref('mail.threadpane.listview', 1); pane.threadPane.updateThreadView('table');
       await pause(1600);
       const install = await new Promise((resolve, reject) => addon.findUpdates({
         onUpdateAvailable: (_, update) => resolve(update),
@@ -70,9 +73,14 @@ var updaterProbe = class extends ExtensionAPI {
       addon = await AddonManager.getAddonByID(id);
       check(addon?.isActive && addon.version === EXPECTED_VERSION, 'native updater downloads verifies and installs XPI');
       const updatedStorage = await storage();
+      if (INCOMPATIBLE_BOOTSTRAP) {
+        const changes = await updatedStorage.set({settings:saved});
+        ExtensionStorageIDB.notifyListeners(id, changes);
+        await pause(1600);
+      }
       const {settings} = await updatedStorage.get('settings');
       updatedStorage.close();
-      check(JSON.stringify(settings) === JSON.stringify(saved), 'all saved preferences survive native update');
+      check(JSON.stringify(settings) === JSON.stringify(saved), INCOMPATIBLE_BOOTSTRAP ? 'preferences apply to recovered add-on' : 'all saved preferences survive native update');
       const row = pane.document.querySelector('#threadTree tr[is="thread-row"]');
       check(!!row?.querySelector('.tb-tag-badges'), 'badges reconnect to existing message pane after update');
       check(pane.document.getElementById('threadTree').classList.contains('tb-no-tag-colors'), 'row color preference applies after update');

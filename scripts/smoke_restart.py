@@ -29,7 +29,7 @@ user_pref("mailnews.start_page.url", "about:blank");
 user_pref("mailnews.database.global.indexer.enabled", false);
 ''')
     controller = {'manifest_version':2,'name':'Restart test','version':'1.0',
-                  'browser_specific_settings':{'gecko':{'id':'restart-test@local.invalid','strict_min_version':'128.0','strict_max_version':'128.*'}},
+                  'browser_specific_settings':{'gecko':{'id':'restart-test@local.invalid','strict_min_version':'128.0','strict_max_version':manifest['browser_specific_settings']['gecko']['strict_max_version']}},
                   'background':{'scripts':['background.js']},
                   'experiment_apis':{'restartProbe':{'schema':'schema.json','parent':{'scopes':['addon_parent'],'paths':[['restartProbe']],'script':'api.js'}}}}
     fixture = (root / 'tests/restart-smoke.js').read_text().replace('REPORT_PATH',json.dumps(str(report)))

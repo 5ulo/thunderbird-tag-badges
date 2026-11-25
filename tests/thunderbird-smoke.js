@@ -22,7 +22,7 @@
     pane.displayFolder(folder.URI);
     await pause(1000);
     this.settings = this.shared.TagBadgeSettings.normalize();
-    pane.threadPane.updateThreadView("table");
+    Services.prefs.setIntPref("mail.threadpane.listview", 1); pane.threadPane.updateThreadView("table");
     await pause(500);
     for (const s of this.documents.values()) s.schedule();
     await pause(1600);
@@ -93,15 +93,30 @@
     check(!row.querySelector('.tb-tag-badges'), "table toggle removes badges");
     this.settings.tableEnabled = true;
     this.settings.tableMaxTags = 0;
-    pane.threadPane.updateThreadView("cards");
+    Services.prefs.setIntPref("mail.threadpane.listview", 0); pane.threadPane.updateThreadView("cards");
     await pause(500);
     for (const s of this.documents.values()) s.schedule();
     await pause(1600);
     row = pane.document.querySelector('#threadTree tr[is="thread-card"]');
     check(!!row, "card exists");
     check(row.querySelectorAll('.tb-tag-badge').length === 2, "multiple card badges");
-    check(pane.getComputedStyle(row.querySelector('.thread-card-tags-info')).display === 'none', "native tag icons hidden");
-    check(!!row.querySelector('.thread-card-last-row .tb-tag-badges'), "badges in bottom card row");
+    check(pane.getComputedStyle(row.querySelector('.thread-card-tags-info, thread-card-tags')).display === 'none', "native tag icons hidden");
+    check(!!row.querySelector(':is(.thread-card-last-row, .thread-card-dynamic-row) .tb-tag-badges'), "badges in bottom card row");
+    if (row.querySelector('thread-card-tags')) {
+      for (const count of [2, 3]) {
+        Services.prefs.setIntPref('mail.threadpane.cardsview.rowcount', count);
+        pane.threadPane.updateThreadItemSize();
+        await pause(500);
+        for (const state of this.documents.values()) state.schedule();
+        await pause(1600);
+        row = pane.document.querySelector('#threadTree tr[is="thread-card"]');
+        const info = row.querySelector('.thread-card-icon-info').getBoundingClientRect();
+        const star = row.querySelector('.button-star').getBoundingClientRect();
+        const group = row.querySelector('.tb-tag-badges').getBoundingClientRect();
+        check(group.width > 0 && Math.abs(star.right-info.right) <= 2 && star.left-group.right >= -1 && star.left-group.right <= 14, `modern ${count}-row cards keep badges beside right-aligned star`);
+        check(pane.getComputedStyle(row.querySelector('thread-card-tags')).display === 'none', `modern ${count}-row cards hide native tags`);
+      }
+    }
     MailServices.tags.setTagForKey("smoke-custom", "Premenovaný štítok");
     await pause(1600);
     check([...row.querySelectorAll('.tb-tag-badge')].some(b => b.textContent === "Premenovaný štítok"), "tag rename updates automatically");
@@ -123,7 +138,7 @@
     for (const s of this.documents.values()) s.schedule();
     await pause(1600);
     check(!row.querySelector('.tb-tag-badges'), "card toggle removes badges");
-    check(pane.getComputedStyle(row.querySelector('.thread-card-tags-info')).display !== 'none', "card toggle restores native icons");
+    check(pane.getComputedStyle(row.querySelector('.thread-card-tags-info, thread-card-tags')).display !== 'none', "card toggle restores native icons");
     const tabmail = win.document.getElementById("tabmail");
     const optionsTab = tabmail.openTab("contentTab", {url:this.context.extension.getURL("options/options.html"), triggeringPrincipal:this.context.extension.principal});
     for (let i = 0; i < 100 && !this.optionsResult; i++) await pause(100);

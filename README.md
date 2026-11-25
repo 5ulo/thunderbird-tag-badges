@@ -6,7 +6,7 @@ Colorful tag badges in Thunderbird’s message list.
 
 Displays existing built-in and custom message tags as solid, high-contrast badges in table and cards views. Tags are managed by Thunderbird; this add-on only changes their presentation.
 
-**Author:** EnjoyDev · **License:** [MIT](LICENSE) · **Compatibility:** Thunderbird 128 ESR only
+**Author:** EnjoyDev · **License:** [MIT](LICENSE) · **Compatibility:** Thunderbird 128–161
 
 
 ## Features
@@ -23,7 +23,7 @@ Displays existing built-in and custom message tags as solid, high-contrast badge
 - Tag background colors from Thunderbird, with black or white text chosen for higher contrast.
 - Optional debug logging, disabled by default.
 
-The settings page follows Thunderbird’s UI language: English and Slovak are included, with English as the fallback for other languages. Status messages, preview labels and accessibility text are localized too; your actual tag names are preserved. Reopen the settings page after changing Thunderbird’s UI language. Support for newer Thunderbird versions is planned; this project is not yet published on Thunderbird Add-ons.
+The settings page follows Thunderbird’s UI language: English and Slovak are included, with English as the fallback for other languages. Status messages, preview labels and accessibility text are localized too; your actual tag names are preserved. Reopen the settings page after changing Thunderbird’s UI language. This project is not yet published on Thunderbird Add-ons.
 
 ## Build and install
 
@@ -35,13 +35,13 @@ cd thunderbird-tag-badges
 python3 scripts/build.py
 ```
 
-In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.2.3.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
+In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.3.0.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
 
 Build output in `dist/` is local and excluded from Git.
 
 ## Updates and add-on details
 
-Install version 0.2.2 manually once to enable the GitHub update channel. Later releases can be found through Thunderbird’s **Check for Updates** action in Add-ons and Themes, or installed automatically according to your add-on update preferences. Updating preserves existing settings; uninstalling is unnecessary. If the UI does not refresh after an update, fully quit and reopen Thunderbird.
+Install version 0.2.2 or newer manually once to enable the GitHub update channel. Later releases can be found through Thunderbird’s **Check for Updates** action in Add-ons and Themes, or installed automatically according to your add-on update preferences. Updating preserves existing settings; uninstalling is unnecessary. If a Thunderbird upgrade disables an older version as incompatible, check for updates or install the latest compatible XPI over it. If the UI does not refresh after an update, fully quit and reopen Thunderbird.
 
 The update manifest lives at [the latest release’s updates.json](https://github.com/5ulo/thunderbird-tag-badges/releases/latest/download/updates.json). It points to versioned XPI assets and includes SHA-256 checksums and Thunderbird compatibility limits. Each release automatically generates it and preserves earlier compatible entries. To generate metadata locally after building:
 
@@ -86,7 +86,7 @@ python3 scripts/smoke.py --thunderbird /path/to/thunderbird
 
 The integration test launches Thunderbird with `-no-remote -headless` in a new temporary profile. It creates a local test message and tag, tests rendering, positioning, limits, toggles, tag renaming, corner radius, row colors, long subjects and cleanup, then stops the test process. It does not use your regular profile. Test instrumentation is excluded from the installable XPI.
 
-Validated on **Thunderbird 128.9.1 on macOS** with DOM and layout integration checks, plus settings and contrast unit tests covering 4,096 RGB samples. Other operating systems, themes and densities still need manual visual testing. Compatibility is deliberately limited to `128.*` because the add-on uses internal UI components.
+Validated on **Thunderbird 128.9.1 and 161.0 on macOS** with DOM and layout integration checks, plus settings and contrast unit tests covering 4,096 RGB samples. The 161 tests include both two-row and three-row cards and repeated application startup. Other operating systems, themes and densities still need manual visual testing. Compatibility is bounded at `161.*` because the add-on uses internal UI components; future major versions must be checked before raising the limit.
 
 Implementation references: [Experiment API documentation](https://developer.thunderbird.net/add-ons/mailextensions/experiments), Thunderbird 128 [thread-row](https://hg.mozilla.org/releases/comm-esr128/file/tip/mail/base/content/widgets/treeview/thread-row.mjs) and [thread-card](https://hg.mozilla.org/releases/comm-esr128/file/tip/mail/base/content/widgets/treeview/thread-card.mjs).
 

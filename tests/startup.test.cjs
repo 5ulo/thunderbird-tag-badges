@@ -18,7 +18,7 @@ function setup(loading) {
     'resource://gre/modules/AddonManager.sys.mjs':{AddonManager:{getAddonByID:async()=>null}},
   };
   const sandbox = {console,ExtensionAPI:class {},ChromeUtils:{importESModule:name=>imported[name]},
-    Services:{scriptloader:{loadSubScript:(_,target)=>{target.TagBadgeSettings=TagBadgeSettings;}},
+    Services:{scriptloader:{loadSubScriptWithOptions:(url,options)=>{assert.equal(url,"settings.js"); assert.equal(options.allowUnsafeURL,true); options.target.TagBadgeSettings=TagBadgeSettings;}},
       prefs:{addObserver(){},removeObserver(){}},obs:{addObserver(){},removeObserver(){}},
       wm:{addListener(){},removeListener(){},getEnumerator:()=>windows}}};
   vm.runInNewContext(source,sandbox);

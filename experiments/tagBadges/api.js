@@ -7,7 +7,11 @@ return class extends ExtensionAPI {
     this.context = context;
     this.closed = false;
     this.shared = {};
-    Services.scriptloader.loadSubScript(context.extension.rootURI.resolve("settings.js"), this.shared);
+    // New Gecko versions restrict jar: subscripts. Permit only our fixed,
+    // locally packaged settings module; never change the global security pref.
+    Services.scriptloader.loadSubScriptWithOptions(context.extension.rootURI.resolve("settings.js"), {
+      target: this.shared, charset: "UTF-8", allowUnsafeURL: true,
+    });
     this.settings = this.shared.TagBadgeSettings.normalize();
     this.windows = new Map();
     this.documents = new Map();
@@ -163,7 +167,7 @@ return class extends ExtensionAPI {
       .subject-line > .tb-tag-badges { flex: 0 0 auto; width: max-content; }
       .tb-tags-before { margin-inline-end: 6px; }
       .tb-tags-after { margin-inline-start: 6px; }
-      tr.tb-card-badges .thread-card-tags-info { display: none !important; }
+      tr.tb-card-badges :is(.thread-card-tags-info, thread-card-tags) { display: none !important; }
       #threadTree tr.tb-card-badges .thread-card-icon-info { min-width: 0; flex: 1;
         overflow: hidden; justify-content: flex-end !important; }
       #threadTree tr.tb-card-badges .thread-card-icon-info > button { margin-inline: 0; }
@@ -246,7 +250,7 @@ return class extends ExtensionAPI {
     const limit = card ? this.settings.cardMaxTags : this.settings.tableMaxTags;
     const shown = limit ? all.slice(0, limit) : all;
     const subject = row.querySelector(".subject-line > span");
-    const native = row.querySelector(".thread-card-tags-info");
+    const native = row.querySelector(".thread-card-tags-info, thread-card-tags");
     if (!shown.length || (card ? !native : !subject)) { old?.remove(); return; }
     const doc = row.ownerDocument;
     const badges = old || doc.createElement("div");
