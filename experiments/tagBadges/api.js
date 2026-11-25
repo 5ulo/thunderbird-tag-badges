@@ -1,6 +1,7 @@
 /* global ChromeUtils, ExtensionAPI, Services */
 var tagBadges = (() => {
 const {ExtensionSupport} = ChromeUtils.importESModule("resource:///modules/ExtensionSupport.sys.mjs");
+const {AddonManager} = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
 const {MailServices} = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 return class extends ExtensionAPI {
   getAPI(context) {
@@ -39,9 +40,52 @@ return class extends ExtensionAPI {
     context.callOnClose(this);
     return {tagBadges: {listTags: async () => MailServices.tags.getAllTags().map(({key, tag}) => ({key, tag})), configure: async settings => {
       this.hiddenTagsLabel = settings.hiddenTagsLabel || "Hidden tags";
+      this.detailsDescription = settings.detailsDescription || "";
+      await this.installDetailsDescription();
       this.settings = this.shared.TagBadgeSettings.normalize(settings);
       for (const state of this.documents.values()) state.schedule();
     }}};
+  }
+
+  async installDetailsDescription() {
+    if (!this.detailsAddon) {
+      const addon = await AddonManager.getAddonByID(this.context.extension.id);
+      if (!addon || this.closed) return;
+      this.detailsAddon = addon;
+      this.originalDescriptionHook = Object.getOwnPropertyDescriptor(addon, "getFullDescription");
+      this.descriptionHook = doc => this.createDescription(doc);
+      Object.defineProperty(addon, "getFullDescription", {configurable: true, value: this.descriptionHook});
+    }
+    this.refreshDetails();
+  }
+
+  createDescription(doc) {
+    const description = doc.createElement("div");
+    description.className = "tb-addon-description";
+    for (const text of this.detailsDescription.split(/\n\n/).filter(Boolean)) {
+      const paragraph = doc.createElement("p");
+      paragraph.textContent = text;
+      description.append(paragraph);
+    }
+    return description;
+  }
+
+  refreshDetails(remove = false) {
+    const scan = doc => {
+      if (!doc || doc.nodeType !== 9) return;
+      const id = this.context.extension.id;
+      for (const card of doc.querySelectorAll("addon-card[addon-id]")) {
+        if (card.getAttribute("addon-id") !== id) continue;
+        const host = card.querySelector(".addon-detail-description");
+        if (!host) continue;
+        host.querySelector(".tb-addon-description")?.remove();
+        if (!remove && this.detailsDescription) host.append(this.createDescription(doc));
+      }
+      for (const browser of doc.querySelectorAll("browser, iframe")) {
+        try { if (browser.contentDocument !== doc) scan(browser.contentDocument); } catch (_) {}
+      }
+    };
+    for (const win of Services.wm.getEnumerator(null)) scan(win.document);
   }
 
   log(message, error) {
@@ -257,6 +301,11 @@ return class extends ExtensionAPI {
   close() {
     if (this.closed) return;
     this.closed = true;
+    if (this.detailsAddon?.getFullDescription === this.descriptionHook) {
+      if (this.originalDescriptionHook) Object.defineProperty(this.detailsAddon, "getFullDescription", this.originalDescriptionHook);
+      else delete this.detailsAddon.getFullDescription;
+    }
+    this.refreshDetails(true);
     Services.obs.removeObserver(this.documentObserver, "document-element-inserted");
     for (const [doc, ready] of this.pendingDocuments) doc.removeEventListener("DOMContentLoaded", ready);
     this.pendingDocuments.clear();

@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
   "name": "Tag Badges for Thunderbird",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "EnjoyDev",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
     "gecko": {
       "id": "tag-badges-thread-pane@local.invalid",
       "strict_min_version": "128.0",
-      "strict_max_version": "128.*"
+      "strict_max_version": "128.*",
+      "update_url": "https://github.com/5ulo/thunderbird-tag-badges/releases/latest/download/updates.json"
     }
   },
   "permissions": [
@@ -40,5 +41,6 @@
       }
     }
   },
-  "default_locale": "en"
+  "default_locale": "en",
+  "homepage_url": "https://github.com/5ulo/thunderbird-tag-badges"
 }

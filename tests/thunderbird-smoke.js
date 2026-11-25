@@ -132,7 +132,23 @@
     await pause(500);
     check(this.settings.tableMaxTags === 2 && this.settings.cardMaxTags === 1 && this.settings.size === 'normal' && this.settings.priority[0] === this.optionsResult.firstKey, "saved options apply to active message views");
     tabmail.closeTab(optionsTab);
+    const manager = await win.openAddonsMgr('addons://detail/' + encodeURIComponent(this.context.extension.id));
+    await pause(1200);
+    const findDetails = doc => {
+      const host = doc.querySelector('addon-card[addon-id="' + this.context.extension.id + '"] .addon-detail-description');
+      if (host) return host;
+      for (const browser of doc.querySelectorAll('browser, iframe')) {
+        try { if (browser.contentDocument) { const found = findDetails(browser.contentDocument); if (found) return found; } } catch (_) {}
+      }
+      return null;
+    };
+    const descriptionHost = findDetails(manager.document);
+    check(!!descriptionHost?.querySelector('.tb-addon-description'), "localized full description appears in native Details tab");
+    check(descriptionHost.textContent.includes(this.detailsDescription.split('\n\n')[0]), "Details description uses selected locale text");
+    check(descriptionHost.querySelectorAll('p').length === 4, "Details description contains feature privacy and compatibility information");
+    const detailsAddon = this.detailsAddon;
     this.close();
+    check(!detailsAddon.getFullDescription && !descriptionHost.querySelector('.tb-addon-description'), "description hook and inserted text cleaned up on disable");
     check(!pane.document.querySelector('.tb-no-tag-colors, .tb-tag-badges, .tb-card-badges, .tb-table-badges'), "cleanup restores native UI");
     await IOUtils.writeUTF8(SMOKE_RESULT_PATH, JSON.stringify({ok:true,results}));
   } catch (error) {

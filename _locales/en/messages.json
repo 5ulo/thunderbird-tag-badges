@@ -145,5 +145,8 @@
   },
   "hiddenTagsLabel": {
     "message": "Hidden tags"
+  },
+  "detailsDescription": {
+    "message": "Tag Badges displays your existing built-in and custom Thunderbird tags as solid color badges in the message list. Show badges before or after the subject in table view, or replace the native tag icons in the bottom row of cards.\n\nChoose independent limits for each view, compact or normal size, pill shapes or a custom corner radius, and Thunderbird, alphabetical or custom priority order. Tags that do not fit are summarized as +N; hover to see the full list. Native tag-based row colors can be turned off independently.\n\nThe add-on changes presentation only: it does not manage tags or modify messages. Preferences are stored locally. English and Slovak follow Thunderbird’s UI language, with English as fallback. Updates are provided through GitHub Releases; Thunderbird contacts GitHub to check for and download updates. No message data is sent.\n\nAuthor: EnjoyDev. License: MIT. Supported Thunderbird versions: 128.*."
   }
 }

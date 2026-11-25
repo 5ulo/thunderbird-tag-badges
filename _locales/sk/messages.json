@@ -145,5 +145,8 @@
   },
   "hiddenTagsLabel": {
     "message": "Skryté štítky"
+  },
+  "detailsDescription": {
+    "message": "Tag Badges zobrazuje existujúce systémové aj vlastné štítky Thunderbirdu ako plné farebné odznaky v zozname správ. V tabuľke ich možno zobraziť pred alebo za predmetom; na kartách nahrádzajú natívne ikony štítkov v spodnom riadku.\n\nPre každý vzhľad si môžete zvoliť samostatný limit, kompaktnú alebo normálnu veľkosť, tvar pilulky či vlastné zaoblenie rohov a poradie Thunderbirdu, abecedné alebo vlastnú prioritu. Štítky, ktoré sa nezmestia, označuje +N; úplný zoznam uvidíte po podržaní kurzora. Natívne prefarbovanie riadkov možno vypnúť nezávisle.\n\nDoplnok upravuje iba zobrazovanie: nespravuje štítky ani nemení správy. Nastavenia sa ukladajú lokálne. Angličtina a slovenčina sa prispôsobujú jazyku Thunderbirdu; pri ostatných jazykoch sa použije angličtina. Aktualizácie poskytuje GitHub Releases; Thunderbird kontaktuje GitHub pri ich kontrole a stiahnutí. Údaje zo správ sa neposielajú.\n\nAutor: EnjoyDev. Licencia: MIT. Podporované verzie Thunderbirdu: 128.*."
   }
 }

@@ -35,15 +35,29 @@ cd thunderbird-tag-badges
 python3 scripts/build.py
 ```
 
-In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.2.1.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
+In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.2.2.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
 
 Build output in `dist/` is local and excluded from Git.
+
+## Updates and add-on details
+
+Install version 0.2.2 manually once to enable the GitHub update channel. Later releases can be found through Thunderbird’s **Check for Updates** action in Add-ons and Themes, or installed automatically according to your add-on update preferences. Updating preserves existing settings; uninstalling is unnecessary. If the UI does not refresh after an update, fully quit and reopen Thunderbird.
+
+The update manifest lives at [the latest release’s updates.json](https://github.com/5ulo/thunderbird-tag-badges/releases/latest/download/updates.json). It points to versioned XPI assets and includes SHA-256 checksums and Thunderbird compatibility limits. Each release automatically generates it and preserves earlier compatible entries. To generate metadata locally after building:
+
+```sh
+python3 scripts/update_manifest.py
+# To preserve previous compatible versions:
+python3 scripts/update_manifest.py --previous /path/to/previous/updates.json
+```
+
+The native **Details** tab displays a full English or Slovak description while the add-on is enabled. Since this package is distributed outside the add-on store, the existing Experiment API provides the description only for this add-on and removes the hook when disabled. The homepage links to this repository.
 
 ## Permissions and privacy
 
 The add-on uses an Experiment API to modify Thunderbird’s native message list. Thunderbird therefore asks for full, unrestricted access at installation. The implementation reads message tags and renders badges; it does not modify message contents, tag definitions, or tag assignments.
 
-The add-on makes no network requests and contains no analytics or telemetry. Preferences are stored locally in Thunderbird. Debug logging is optional and local. See [privacy information](PRIVACY.md).
+The add-on contains no analytics or telemetry and does not send message data or preferences. Preferences are stored locally in Thunderbird. Thunderbird contacts GitHub to check for and download extension updates. Debug logging is optional and local. See [privacy information](PRIVACY.md).
 
 ## Display behavior
 
@@ -63,6 +77,8 @@ Unit tests require Node.js:
 node --test tests/*.test.cjs
 python3 scripts/build.py
 python3 scripts/smoke.py
+# After publishing the current version, test native GitHub updates:
+python3 scripts/smoke_updates.py
 # Override the default macOS Thunderbird executable:
 python3 scripts/smoke.py --thunderbird /path/to/thunderbird
 ```

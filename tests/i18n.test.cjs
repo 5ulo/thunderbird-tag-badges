@@ -12,7 +12,7 @@ test('both catalogs cover every static and dynamic UI message', () => {
   const keys = [...html.matchAll(/data-i18n(?:-aria-label)?="([^"]+)"/g)].map(m => m[1]);
   const options = fs.readFileSync(path.join(root,'options/options.js'),'utf8');
   keys.push(...[...options.matchAll(/message\("([^"]+)"/g)].map(m => m[1]));
-  keys.push('locale','hiddenTagsLabel','extensionDescription');
+  keys.push('locale','hiddenTagsLabel','extensionDescription','detailsDescription');
   for (const locale of ['en','sk']) for (const key of keys) assert.ok(catalogs[locale][key]?.message, `${locale}: ${key}`);
   for (const key of Object.keys(catalogs.en)) {
     assert.deepEqual(catalogs.en[key].message.match(/\$\d+/g), catalogs.sk[key].message.match(/\$\d+/g), key);

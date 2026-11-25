@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2
+
+- Show a localized full description in this add-on’s native Details tab while enabled.
+- Add the project homepage to the add-on metadata.
+- Enable Thunderbird’s standard update mechanism using GitHub Releases.
+- Publish updates.json with versioned XPI links, SHA-256 checksums and compatibility limits; retain older compatible entries.
+- Document the update channel and GitHub connections in the privacy information.
+- Existing 0.2.1 installations need one manual update to enable the channel.
+
 ## 0.2.1
 
 - Follow Thunderbird’s UI language using standard extension localization.

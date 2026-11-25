@@ -50,7 +50,7 @@ jobs:
 
           Download `tag-badges-thread-pane-{version}.xpi` below. In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…** and select the XPI. Existing settings are preserved when updating.
 
-          Settings follow Thunderbird’s UI language: English and Slovak are included, with English as fallback. The add-on uses an Experiment API, so Thunderbird requests full access. It makes no network requests and does not modify messages or tag assignments.
+          Settings follow Thunderbird’s UI language: English and Slovak are included, with English as fallback. The add-on uses an Experiment API, so Thunderbird requests full access. It does not modify messages or tag assignments. Thunderbird checks GitHub Releases for updates; no message data is sent.
 
           **Author:** EnjoyDev · **License:** MIT
           '''
@@ -60,6 +60,8 @@ jobs:
           PY
       - name: Run unit tests
         run: node --test tests/*.test.cjs
+      - name: Test update metadata generator
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Build and validate XPI
         run: |
           python3 scripts/build.py
@@ -74,11 +76,24 @@ jobs:
                   assert not name.startswith(('tests/', 'scripts/')), name
           PY
           (cd dist && sha256sum "$(basename "$XPI_PATH")" > "$(basename "$XPI_PATH").sha256")
+      - name: Generate update metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/previous-updates"
+          gh release view --json assets --jq '.assets[].name' > "$RUNNER_TEMP/release-assets.txt"
+          if grep -Fxq 'updates.json' "$RUNNER_TEMP/release-assets.txt"; then
+            gh release download --pattern updates.json --dir "$RUNNER_TEMP/previous-updates"
+            python3 scripts/update_manifest.py --previous "$RUNNER_TEMP/previous-updates/updates.json"
+          else
+            python3 scripts/update_manifest.py
+          fi
       - name: Publish release and assets
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" "$XPI_PATH" "$XPI_PATH.sha256" --verify-tag --draft --title "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          gh release create "$RELEASE_TAG" "$XPI_PATH" "$XPI_PATH.sha256" "dist/updates.json" --verify-tag --draft --title "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
           gh release edit "$RELEASE_TAG" --draft=false --latest
