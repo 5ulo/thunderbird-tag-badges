@@ -3,27 +3,33 @@ var updaterProbe = class extends ExtensionAPI {
   getAPI() { return {updaterProbe: {run: async () => {
     const {MailServices} = ChromeUtils.importESModule('resource:///modules/MailServices.sys.mjs');
     const {AddonManager} = ChromeUtils.importESModule('resource://gre/modules/AddonManager.sys.mjs');
+    const {ExtensionStorageIDB} = ChromeUtils.importESModule('resource://gre/modules/ExtensionStorageIDB.sys.mjs');
     const {ExtensionParent} = ChromeUtils.importESModule('resource://gre/modules/ExtensionParent.sys.mjs');
     const win = Services.wm.getMostRecentWindow('mail:3pane');
     const pause = ms => new Promise(resolve => win.setTimeout(resolve, ms));
     const id = ADDON_ID;
     const results = [];
     const check = (ok, label) => { if (!ok) throw new Error(label); results.push(label); };
-    const background = async () => {
+    const storage = async () => {
+      let extension;
       for (let i = 0; i < 100; i++) {
-        const extension = ExtensionParent.GlobalManager.getExtension(id);
-        const view = extension && [...extension.views].find(v => v.viewType === 'background');
-        if (view) return view.xulBrowser.contentWindow.wrappedJSObject.messenger;
+        extension = ExtensionParent.GlobalManager.getExtension(id);
+        if (extension) break;
         await pause(100);
       }
-      throw new Error('Background page unavailable');
+      if (!extension) throw new Error('Target extension did not finish starting');
+      await ExtensionStorageIDB.selectBackend({extension});
+      return ExtensionStorageIDB.open(ExtensionStorageIDB.getStoragePrincipal(extension));
     };
     try {
       await pause(1800);
       let addon = await AddonManager.getAddonByID(id);
       check(addon?.version === '0.0.0', 'isolated bootstrap version installed');
       const saved = {tableEnabled:true, cardEnabled:true, tableMaxTags:1, cardMaxTags:2, position:'after', size:'normal', order:'alphabetical', priority:[], pill:false, radius:7, nativeRowColors:false, debug:false};
-      await (await background()).storage.local.set({settings:saved});
+      const initialStorage = await storage();
+      const changes = await initialStorage.set({settings:saved});
+      ExtensionStorageIDB.notifyListeners(id, changes);
+      initialStorage.close();
       try { MailServices.accounts.localFoldersServer; } catch (_) { MailServices.accounts.createLocalMailAccount(); }
       const root = MailServices.accounts.localFoldersServer.rootFolder;
       root.createSubfolder('UpdateTest', null); await pause(500);
@@ -43,7 +49,9 @@ var updaterProbe = class extends ExtensionAPI {
       await install.install(); await pause(2000);
       addon = await AddonManager.getAddonByID(id);
       check(addon?.isActive && addon.version === EXPECTED_VERSION, 'native updater downloads verifies and installs XPI');
-      const {settings} = await (await background()).storage.local.get('settings');
+      const updatedStorage = await storage();
+      const {settings} = await updatedStorage.get('settings');
+      updatedStorage.close();
       check(JSON.stringify(settings) === JSON.stringify(saved), 'all saved preferences survive native update');
       const row = pane.document.querySelector('#threadTree tr[is="thread-row"]');
       check(!!row?.querySelector('.tb-tag-badges'), 'badges reconnect to existing message pane after update');
