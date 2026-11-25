@@ -80,5 +80,5 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" "$XPI_PATH" "$XPI_PATH.sha256" --verify-tag --draft --title "Tag Badges for Thunderbird $RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          gh release create "$RELEASE_TAG" "$XPI_PATH" "$XPI_PATH.sha256" --verify-tag --draft --title "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
           gh release edit "$RELEASE_TAG" --draft=false --latest
