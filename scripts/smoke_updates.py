@@ -15,6 +15,7 @@ from zipfile import ZipFile
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--thunderbird', default='/Applications/Thunderbird.app/Contents/MacOS/thunderbird')
+parser.add_argument('--fresh-manifest', action='store_true', help='Bypass cached latest-release metadata in the test bootstrap immediately after publishing')
 args = parser.parse_args()
 manifest = json.loads((root / 'manifest.json').read_text())
 version = manifest['version']
@@ -38,6 +39,9 @@ user_pref("mailnews.database.global.indexer.enabled", false);
             if name == 'manifest.json':
                 test_manifest = json.loads(data)
                 test_manifest['version'] = '0.0.0'
+                if args.fresh_manifest:
+                    # Test bootstrap only; installed production XPI keeps its stable URL.
+                    test_manifest['browser_specific_settings']['gecko']['update_url'] += '?probe=' + str(time.time_ns())
                 data = json.dumps(test_manifest).encode()
             bootstrap.writestr(name, data)
     controller = {'manifest_version': 2, 'name': 'Native updater test', 'version': '1.0',

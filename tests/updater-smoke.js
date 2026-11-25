@@ -64,7 +64,7 @@ var updaterProbe = class extends ExtensionAPI {
         onNoUpdateAvailable: () => reject(new Error('No update found through GitHub update_url')),
         onUpdateFinished: (_, error) => { if (error) reject(new Error('Update check failed: ' + error)); },
       }, AddonManager.UPDATE_WHEN_USER_REQUESTED));
-      check(install.version === EXPECTED_VERSION, 'native updater finds published GitHub version');
+      check(install.version === EXPECTED_VERSION, 'native updater finds published GitHub version (received ' + install.version + ')');
       check(install.sourceURI.spec.startsWith('https://github.com/5ulo/thunderbird-tag-badges/releases/download/'), 'updater uses versioned GitHub XPI asset');
       await install.install(); await pause(2000);
       addon = await AddonManager.getAddonByID(id);
