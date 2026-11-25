@@ -1,0 +1,1 @@
+[{"namespace":"tagBadges","functions":[{"name":"configure","type":"function","async":true,"parameters":[{"name":"settings","type":"object","additionalProperties":true}]}]}]

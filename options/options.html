@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="sk">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Tag Badges — nastavenia</title><link rel="stylesheet" href="options.css"></head>
+<body>
+<main>
+<header><p class="eyebrow">THUNDERBIRD · TAG BADGES</p><h1>Štítky, ktoré vidno.</h1><p>Existujúce štítky správ ako plné farebné odznaky.</p></header>
+<form id="settings">
+<fieldset><legend>Zobrazenie</legend>
+<label class="check"><input type="checkbox" id="tableEnabled"> Zobraziť v tabuľkovom zozname</label>
+<label class="check"><input type="checkbox" id="cardEnabled"> Nahradiť ikony štítkov v spodnom riadku kariet</label>
+<label for="position">Poloha v tabuľkovom zozname</label><select id="position"><option value="before">Pred predmetom</option><option value="after">Za predmetom</option></select>
+<label for="maxTags">Maximálny počet štítkov na správu</label><input type="number" id="maxTags" min="0" max="1000" step="1" required aria-describedby="limitHelp"><p class="help" id="limitHelp">0 zobrazí všetky. Pri nedostatku miesta sa štítky orežú; úplný zoznam uvidíte po podržaní kurzora.</p>
+</fieldset>
+<fieldset><legend>Vzhľad</legend>
+<label class="check"><input type="checkbox" id="pill"> Zaoblené štítky v tvare pilulky</label>
+<label for="radius">Zaoblenie rohov (px)</label><input type="number" id="radius" min="0" max="100" step="1" required>
+<label class="check"><input type="checkbox" id="nativeRowColors"> Zachovať natívne prefarbovanie riadkov podľa štítku</label>
+<p class="help">Farby štítkov sa preberajú z Thunderbirdu. Farba textu sa automaticky volí medzi čiernou a bielou pre vyšší kontrast.</p>
+</fieldset>
+<fieldset><legend>Diagnostika</legend><label class="check"><input type="checkbox" id="debug"> Zapnúť debug logging</label><p class="help">Diagnostika sa zapisuje do chybovej konzoly. Nezapisuje predmety ani obsah správ.</p></fieldset>
+<div class="actions"><button type="submit">Uložiť nastavenia</button><button type="button" id="reset">Obnoviť predvolené</button><span id="status" role="status" aria-live="polite"></span></div>
+</form>
+<section class="preview" aria-label="Ukážka vzhľadu"><h2>Ukážka</h2><div id="sample"><span id="sampleSubject">Stretnutie k projektu</span></div><p class="help">Ilustračné štítky; doplnok načíta vaše vlastné aj systémové štítky.</p></section>
+<footer>Správa štítkov zostáva v nastaveniach Thunderbirdu. Doplnok upravuje iba ich zobrazenie.</footer>
+</main><script src="../settings.js"></script><script src="options.js"></script>
+</body></html>

@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "Tag Badges for Thunderbird",
+  "version": "0.1.2",
+  "author": "EnjoyDev",
+  "description": "Colorful tag badges in Thunderbird’s message list.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tag-badges-thread-pane@local.invalid",
+      "strict_min_version": "128.0",
+      "strict_max_version": "128.*"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "scripts": [
+      "settings.js",
+      "background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "experiment_apis": {
+    "tagBadges": {
+      "schema": "experiments/tagBadges/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "tagBadges"
+          ]
+        ],
+        "script": "experiments/tagBadges/api.js"
+      }
+    }
+  }
+}
