@@ -1,0 +1,149 @@
+{
+  "optionsTitle": {
+    "message": "Tag Badges — nastavenia"
+  },
+  "brand": {
+    "message": "THUNDERBIRD · TAG BADGES"
+  },
+  "heading": {
+    "message": "Štítky, ktoré vidno."
+  },
+  "intro": {
+    "message": "Existujúce štítky správ ako plné farebné odznaky."
+  },
+  "display": {
+    "message": "Zobrazenie"
+  },
+  "tableEnabledLabel": {
+    "message": "Zobraziť v tabuľkovom zozname"
+  },
+  "cardEnabledLabel": {
+    "message": "Nahradiť ikony štítkov v spodnom riadku kariet"
+  },
+  "positionLabel": {
+    "message": "Poloha v tabuľkovom zozname"
+  },
+  "before": {
+    "message": "Pred predmetom"
+  },
+  "after": {
+    "message": "Za predmetom"
+  },
+  "tableLimit": {
+    "message": "Maximálny počet štítkov v tabuľke"
+  },
+  "cardLimit": {
+    "message": "Maximálny počet štítkov na karte"
+  },
+  "limitHelp": {
+    "message": "0 = bez početného limitu. Zobrazia sa iba celé štítky, ktoré sa zmestia. Zvyšné označí +N; úplný zoznam nájdete po podržaní kurzora."
+  },
+  "orderLabel": {
+    "message": "Poradie štítkov"
+  },
+  "thunderbirdOrder": {
+    "message": "Poradie Thunderbirdu"
+  },
+  "alphabetical": {
+    "message": "Abecedné"
+  },
+  "customPriority": {
+    "message": "Vlastná priorita"
+  },
+  "priorityLabel": {
+    "message": "Vlastná priorita — najvyššia hore"
+  },
+  "moveUp": {
+    "message": "Posunúť hore"
+  },
+  "moveDown": {
+    "message": "Posunúť dole"
+  },
+  "priorityHelp": {
+    "message": "Vyberte štítok a posuňte ho. Mení sa iba poradie zobrazenia v doplnku. Nové štítky sa pridajú na koniec."
+  },
+  "appearance": {
+    "message": "Vzhľad"
+  },
+  "sizeLabel": {
+    "message": "Veľkosť štítkov"
+  },
+  "compact": {
+    "message": "Kompaktná"
+  },
+  "normal": {
+    "message": "Normálna"
+  },
+  "pillLabel": {
+    "message": "Zaoblené štítky v tvare pilulky"
+  },
+  "radiusLabel": {
+    "message": "Zaoblenie rohov (px)"
+  },
+  "nativeColorsLabel": {
+    "message": "Zachovať natívne prefarbovanie riadkov podľa štítku"
+  },
+  "colorHelp": {
+    "message": "Farby štítkov sa preberajú z Thunderbirdu. Farba textu sa automaticky volí medzi čiernou a bielou pre vyšší kontrast."
+  },
+  "diagnostics": {
+    "message": "Diagnostika"
+  },
+  "debugLabel": {
+    "message": "Zapnúť debug logging"
+  },
+  "debugHelp": {
+    "message": "Diagnostika sa zapisuje do chybovej konzoly. Nezapisuje predmety ani obsah správ."
+  },
+  "save": {
+    "message": "Uložiť nastavenia"
+  },
+  "reset": {
+    "message": "Obnoviť predvolené"
+  },
+  "preview": {
+    "message": "Ukážka"
+  },
+  "sampleSubject": {
+    "message": "Stretnutie k projektu"
+  },
+  "previewHelp": {
+    "message": "Ilustračné štítky; doplnok načíta vaše vlastné aj systémové štítky."
+  },
+  "footer": {
+    "message": "Správa štítkov zostáva v nastaveniach Thunderbirdu. Doplnok upravuje iba ich zobrazenie."
+  },
+  "locale": {
+    "message": "sk"
+  },
+  "extensionDescription": {
+    "message": "Farebné štítky v zozname správ Thunderbirdu."
+  },
+  "unsaved": {
+    "message": "Neuložené zmeny"
+  },
+  "saved": {
+    "message": "Nastavenia uložené."
+  },
+  "saveFailed": {
+    "message": "Uloženie zlyhalo: $1"
+  },
+  "loadFailed": {
+    "message": "Načítanie zlyhalo: $1"
+  },
+  "defaultsReady": {
+    "message": "Predvolené hodnoty pripravené. Uložte nastavenia."
+  },
+  "sampleImportant": {
+    "message": "Dôležité"
+  },
+  "sampleWork": {
+    "message": "Práca"
+  },
+  "sampleProject": {
+    "message": "Projekt"
+  },
+  "hiddenTagsLabel": {
+    "message": "Skryté štítky"
+  }
+}

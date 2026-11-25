@@ -7,7 +7,7 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 root = Path(__file__).resolve().parents[1]
 manifest = json.loads((root / 'manifest.json').read_text())
 files = ['manifest.json', 'settings.js', 'background.js', 'LICENSE']
-for directory in ('experiments', 'options'):
+for directory in ('experiments', 'options', '_locales'):
     files.extend(str(p.relative_to(root)) for p in (root / directory).rglob('*') if p.is_file())
 output = root / 'dist' / f'tag-badges-thread-pane-{manifest["version"]}.xpi'
 output.parent.mkdir(exist_ok=True)

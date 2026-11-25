@@ -1,7 +1,7 @@
 /* global messenger, TagBadgeSettings */
 async function applySettings() {
   const {settings} = await messenger.storage.local.get("settings");
-  await messenger.tagBadges.configure(TagBadgeSettings.normalize(settings));
+  await messenger.tagBadges.configure({...TagBadgeSettings.normalize(settings), hiddenTagsLabel: messenger.i18n.getMessage("hiddenTagsLabel")});
 }
 // Register before the initial read so changes during startup cannot be lost.
 let updates = Promise.resolve();

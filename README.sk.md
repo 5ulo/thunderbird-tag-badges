@@ -2,16 +2,20 @@
 
 [Changelog](CHANGELOG.md) · [Licencia](LICENSE) · [Súkromie](PRIVACY.md) · [English](README.md)
 
-Doplnok pre **Thunderbird 128 ESR**, ktorý zobrazuje existujúce štítky správ ako nepriehľadné farebné odznaky. Verzia 0.2.0.
+Doplnok pre **Thunderbird 128 ESR**, ktorý zobrazuje existujúce štítky správ ako nepriehľadné farebné odznaky. Verzia 0.2.1.
 
 ## Inštalácia
 
 1. V Thunderbirde otvorte **Doplnky a témy → Rozšírenia**.
 2. V ponuke ozubeného kolieska vyberte **Inštalovať doplnok zo súboru…**.
-3. Vyberte `dist/tag-badges-thread-pane-0.2.0.xpi` a potvrďte inštaláciu.
+3. Vyberte `dist/tag-badges-thread-pane-0.2.1.xpi` a potvrďte inštaláciu.
 4. Nastavenia nájdete pri tomto doplnku cez tlačidlo nastavení / predvolieb.
 
 Doplnok používa Experiment API na úpravu natívneho zoznamu správ. Thunderbird preto pri inštalácii vyžiada plný prístup. Doplnok nekomunikuje so sieťou, nemení obsah správ ani definície a priradenie tagov. Nastavenia ukladá lokálne.
+
+## Jazyk rozhrania
+
+Nastavenia sa automaticky prispôsobujú jazyku rozhrania Thunderbirdu. Podporovaná je angličtina a slovenčina; pri ostatných jazykoch sa použije angličtina. Preložené sú aj stavové hlášky, ukážkové štítky a prístupné popisy. Skutočné názvy vašich tagov sa nemenia. Po zmene jazyka Thunderbirdu znovu otvorte nastavenia doplnku.
 
 ## Funkcie a predvolené hodnoty
 

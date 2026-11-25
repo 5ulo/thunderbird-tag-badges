@@ -1,4 +1,5 @@
 /* global messenger, TagBadgeSettings */
+const message = (key, substitutions) => messenger.i18n.getMessage(key, substitutions);
 const form = document.getElementById("settings");
 const status = document.getElementById("status");
 let availableTags = [];
@@ -33,9 +34,9 @@ function preview() {
   const fragment = document.createDocumentFragment();
   if (settings.tableEnabled) {
     const tags = TagBadgeSettings.sortTags([
-      {key: "$label1", tag: "Dôležité", color: "#d70022"},
-      {key: "$label2", tag: "Práca", color: "#ffcc00"},
-      {key: "project", tag: "Projekt", color: "#315cbd"}], settings);
+      {key: "$label1", tag: message("sampleImportant"), color: "#d70022"},
+      {key: "$label2", tag: message("sampleWork"), color: "#ffcc00"},
+      {key: "project", tag: message("sampleProject"), color: "#315cbd"}], settings);
     const shown = tags.slice(0, settings.tableMaxTags || tags.length);
     for (const {tag: name, color} of shown) {
       const badge = document.createElement("span");
@@ -58,17 +59,17 @@ function preview() {
   if (settings.position === "before") subject.before(fragment);
   else subject.after(fragment);
 }
-form.addEventListener("input", () => {status.textContent = "Neuložené zmeny"; preview();});
+form.addEventListener("input", () => {status.textContent = message("unsaved"); preview();});
 form.addEventListener("submit", async event => {
   event.preventDefault();
   try {
     await messenger.storage.local.set({settings: readForm()});
-    status.textContent = "Nastavenia uložené.";
-  } catch (error) {status.textContent = `Uloženie zlyhalo: ${error.message}`;}
+    status.textContent = message("saved");
+  } catch (error) {status.textContent = message("saveFailed", [error.message]);}
 });
 document.getElementById("reset").addEventListener("click", () => {
   fill(TagBadgeSettings.defaults);
-  status.textContent = "Predvolené hodnoty pripravené. Uložte nastavenia.";
+  status.textContent = message("defaultsReady");
 });
 for (const [id, delta] of [["priorityUp", -1], ["priorityDown", 1]]) {
   document.getElementById(id).addEventListener("click", () => {
@@ -80,7 +81,7 @@ for (const [id, delta] of [["priorityUp", -1], ["priorityDown", 1]]) {
     [options[index], options[target]] = [options[target], options[index]];
     list.replaceChildren(...options);
     list.selectedIndex = target;
-    status.textContent = "Neuložené zmeny";
+    status.textContent = message("unsaved");
     preview();
   });
 }
@@ -96,5 +97,5 @@ for (const [id, delta] of [["priorityUp", -1], ["priorityDown", 1]]) {
     }
     const {settings} = await messenger.storage.local.get("settings");
     fill(TagBadgeSettings.normalize(settings));
-  } catch (error) {status.textContent = `Načítanie zlyhalo: ${error.message}`;}
+  } catch (error) {status.textContent = message("loadFailed", [error.message]);}
 })();

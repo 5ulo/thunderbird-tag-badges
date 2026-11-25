@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+- Follow Thunderbird’s UI language using standard extension localization.
+- Include English and Slovak, with English as the fallback for other languages.
+- Localize settings, status and error messages, preview labels, description and hidden-tag accessibility text.
+- Preserve user-defined tag names and existing settings.
+
 ## 0.2.0
 
 - Add +N counters with complete tag-name tooltips for count and width overflow.

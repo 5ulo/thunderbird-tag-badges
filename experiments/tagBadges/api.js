@@ -38,6 +38,7 @@ return class extends ExtensionAPI {
     });
     context.callOnClose(this);
     return {tagBadges: {listTags: async () => MailServices.tags.getAllTags().map(({key, tag}) => ({key, tag})), configure: async settings => {
+      this.hiddenTagsLabel = settings.hiddenTagsLabel || "Hidden tags";
       this.settings = this.shared.TagBadgeSettings.normalize(settings);
       for (const state of this.documents.values()) state.schedule();
     }}};
@@ -119,7 +120,7 @@ return class extends ExtensionAPI {
         observeColumns();
         tree.classList.toggle("tb-no-tag-colors", !this.settings.nativeRowColors);
         for (const row of tree.querySelectorAll('tr[is="thread-row"], tr[is="thread-card"]')) {
-          try { this.renderRow(row); this.fitRow(row); } catch (error) { this.log("Nepodarilo sa vykresliť riadok", error); }
+          try { this.renderRow(row); this.fitRow(row); } catch (error) { this.log("Could not render row", error); }
         }
       } finally {
         if (!destroyed) observer.observe(tree, {subtree: true, childList: true,
@@ -159,7 +160,7 @@ return class extends ExtensionAPI {
     this.documents.set(doc, {schedule, destroy});
     win.addEventListener("unload", destroy, {once: true});
     render();
-    this.log("Pripojené about:3pane");
+    this.log("Attached to about:3pane");
   }
 
   renderRow(row) {
@@ -244,7 +245,7 @@ return class extends ExtensionAPI {
     more.hidden = !hidden;
     more.textContent = `+${hidden}`;
     more.title = group.title;
-    more.setAttribute("aria-label", `${hidden} — ${group.title}`);
+    more.setAttribute("aria-label", `${this.hiddenTagsLabel}: ${hidden}. ${group.title}`);
     // Even the counter cannot be displayed in a pane narrower than the counter.
     if (hidden && more.getBoundingClientRect().width > available + .25) group.style.visibility = "hidden";
   }

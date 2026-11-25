@@ -1,0 +1,149 @@
+{
+  "optionsTitle": {
+    "message": "Tag Badges — settings"
+  },
+  "brand": {
+    "message": "THUNDERBIRD · TAG BADGES"
+  },
+  "heading": {
+    "message": "Tags that stand out."
+  },
+  "intro": {
+    "message": "Your existing message tags as solid color badges."
+  },
+  "display": {
+    "message": "Display"
+  },
+  "tableEnabledLabel": {
+    "message": "Show badges in table view"
+  },
+  "cardEnabledLabel": {
+    "message": "Replace native tag icons in the bottom row of cards"
+  },
+  "positionLabel": {
+    "message": "Position in table view"
+  },
+  "before": {
+    "message": "Before the subject"
+  },
+  "after": {
+    "message": "After the subject"
+  },
+  "tableLimit": {
+    "message": "Maximum badges in table view"
+  },
+  "cardLimit": {
+    "message": "Maximum badges in cards view"
+  },
+  "limitHelp": {
+    "message": "0 = no count limit. Only whole badges that fit are shown. Remaining tags are summarized as +N; hover to see the full list."
+  },
+  "orderLabel": {
+    "message": "Tag order"
+  },
+  "thunderbirdOrder": {
+    "message": "Thunderbird order"
+  },
+  "alphabetical": {
+    "message": "Alphabetical"
+  },
+  "customPriority": {
+    "message": "Custom priority"
+  },
+  "priorityLabel": {
+    "message": "Custom priority — highest first"
+  },
+  "moveUp": {
+    "message": "Move up"
+  },
+  "moveDown": {
+    "message": "Move down"
+  },
+  "priorityHelp": {
+    "message": "Select a tag and move it. This only changes display order in the add-on. New tags are added at the end."
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "sizeLabel": {
+    "message": "Badge size"
+  },
+  "compact": {
+    "message": "Compact"
+  },
+  "normal": {
+    "message": "Normal"
+  },
+  "pillLabel": {
+    "message": "Pill-shaped badges"
+  },
+  "radiusLabel": {
+    "message": "Corner radius (px)"
+  },
+  "nativeColorsLabel": {
+    "message": "Keep native tag-based row colors"
+  },
+  "colorHelp": {
+    "message": "Badge colors come from Thunderbird. Text is automatically black or white for higher contrast."
+  },
+  "diagnostics": {
+    "message": "Diagnostics"
+  },
+  "debugLabel": {
+    "message": "Enable debug logging"
+  },
+  "debugHelp": {
+    "message": "Diagnostics are written to the error console. Message subjects and bodies are not logged."
+  },
+  "save": {
+    "message": "Save settings"
+  },
+  "reset": {
+    "message": "Restore defaults"
+  },
+  "preview": {
+    "message": "Preview"
+  },
+  "sampleSubject": {
+    "message": "Project meeting"
+  },
+  "previewHelp": {
+    "message": "Example tags; the add-on loads your own and built-in tags."
+  },
+  "footer": {
+    "message": "Manage tags in Thunderbird settings. This add-on only changes how they are displayed."
+  },
+  "locale": {
+    "message": "en"
+  },
+  "extensionDescription": {
+    "message": "Colorful tag badges in Thunderbird’s message list."
+  },
+  "unsaved": {
+    "message": "Unsaved changes"
+  },
+  "saved": {
+    "message": "Settings saved."
+  },
+  "saveFailed": {
+    "message": "Could not save settings: $1"
+  },
+  "loadFailed": {
+    "message": "Could not load settings: $1"
+  },
+  "defaultsReady": {
+    "message": "Default values restored. Save settings to apply them."
+  },
+  "sampleImportant": {
+    "message": "Important"
+  },
+  "sampleWork": {
+    "message": "Work"
+  },
+  "sampleProject": {
+    "message": "Project"
+  },
+  "hiddenTagsLabel": {
+    "message": "Hidden tags"
+  }
+}

@@ -23,7 +23,7 @@ Displays existing built-in and custom message tags as solid, high-contrast badge
 - Tag background colors from Thunderbird, with black or white text chosen for higher contrast.
 - Optional debug logging, disabled by default.
 
-Settings are currently in Slovak. English localization and support for newer Thunderbird versions are planned; this project is not yet published on Thunderbird Add-ons.
+The settings page follows Thunderbird’s UI language: English and Slovak are included, with English as the fallback for other languages. Status messages, preview labels and accessibility text are localized too; your actual tag names are preserved. Reopen the settings page after changing Thunderbird’s UI language. Support for newer Thunderbird versions is planned; this project is not yet published on Thunderbird Add-ons.
 
 ## Build and install
 
@@ -35,7 +35,7 @@ cd thunderbird-tag-badges
 python3 scripts/build.py
 ```
 
-In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.2.0.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
+In Thunderbird, open **Add-ons and Themes → Extensions → gear menu → Install Add-on From File…**, then select `dist/tag-badges-thread-pane-0.2.1.xpi`. Open the extension’s preferences to configure it. Installing a newer version with the same add-on ID preserves saved settings.
 
 Build output in `dist/` is local and excluded from Git.
 

@@ -1,33 +1,33 @@
 <!doctype html>
-<html lang="sk">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Tag Badges — nastavenia</title><link rel="stylesheet" href="options.css"></head>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title data-i18n="optionsTitle">Tag Badges — settings</title><link rel="stylesheet" href="options.css"></head>
 <body>
 <main>
-<header><p class="eyebrow">THUNDERBIRD · TAG BADGES</p><h1>Štítky, ktoré vidno.</h1><p>Existujúce štítky správ ako plné farebné odznaky.</p></header>
+<header><p class="eyebrow" data-i18n="brand">THUNDERBIRD · TAG BADGES</p><h1 data-i18n="heading">Tags that stand out.</h1><p data-i18n="intro">Your existing message tags as solid color badges.</p></header>
 <form id="settings">
-<fieldset><legend>Zobrazenie</legend>
-<label class="check"><input type="checkbox" id="tableEnabled"> Zobraziť v tabuľkovom zozname</label>
-<label class="check"><input type="checkbox" id="cardEnabled"> Nahradiť ikony štítkov v spodnom riadku kariet</label>
-<label for="position">Poloha v tabuľkovom zozname</label><select id="position"><option value="before">Pred predmetom</option><option value="after">Za predmetom</option></select>
-<label for="tableMaxTags">Maximálny počet štítkov v tabuľke</label><input type="number" id="tableMaxTags" min="0" max="1000" step="1" required>
-<label for="cardMaxTags">Maximálny počet štítkov na karte</label><input type="number" id="cardMaxTags" min="0" max="1000" step="1" required>
-<p class="help">0 = bez početného limitu. Zobrazia sa iba celé štítky, ktoré sa zmestia. Zvyšné označí +N; úplný zoznam nájdete po podržaní kurzora.</p>
-<label for="order">Poradie štítkov</label><select id="order"><option value="thunderbird">Poradie Thunderbirdu</option><option value="alphabetical">Abecedné</option><option value="priority">Vlastná priorita</option></select>
-<div id="priorityPanel"><label for="priority">Vlastná priorita — najvyššia hore</label><select id="priority" size="6" aria-describedby="priorityHelp"></select>
-<div class="actions"><button type="button" id="priorityUp">Posunúť hore</button><button type="button" id="priorityDown">Posunúť dole</button></div>
-<p class="help" id="priorityHelp">Vyberte štítok a posuňte ho. Mení sa iba poradie zobrazenia v doplnku. Nové štítky sa pridajú na koniec.</p></div>
+<fieldset><legend data-i18n="display">Display</legend>
+<label class="check"><input type="checkbox" id="tableEnabled"> <span data-i18n="tableEnabledLabel">Show badges in table view</span></label>
+<label class="check"><input type="checkbox" id="cardEnabled"> <span data-i18n="cardEnabledLabel">Replace native tag icons in the bottom row of cards</span></label>
+<label for="position" data-i18n="positionLabel">Position in table view</label><select id="position"><option value="before" data-i18n="before">Before the subject</option><option value="after" data-i18n="after">After the subject</option></select>
+<label for="tableMaxTags" data-i18n="tableLimit">Maximum badges in table view</label><input type="number" id="tableMaxTags" min="0" max="1000" step="1" required>
+<label for="cardMaxTags" data-i18n="cardLimit">Maximum badges in cards view</label><input type="number" id="cardMaxTags" min="0" max="1000" step="1" required>
+<p class="help" data-i18n="limitHelp">0 = no count limit. Only whole badges that fit are shown. Remaining tags are summarized as +N; hover to see the full list.</p>
+<label for="order" data-i18n="orderLabel">Tag order</label><select id="order"><option value="thunderbird" data-i18n="thunderbirdOrder">Thunderbird order</option><option value="alphabetical" data-i18n="alphabetical">Alphabetical</option><option value="priority" data-i18n="customPriority">Custom priority</option></select>
+<div id="priorityPanel"><label for="priority" data-i18n="priorityLabel">Custom priority — highest first</label><select id="priority" size="6" aria-describedby="priorityHelp"></select>
+<div class="actions"><button type="button" id="priorityUp" data-i18n="moveUp">Move up</button><button type="button" id="priorityDown" data-i18n="moveDown">Move down</button></div>
+<p class="help" id="priorityHelp" data-i18n="priorityHelp">Select a tag and move it. This only changes display order in the add-on. New tags are added at the end.</p></div>
 </fieldset>
-<fieldset><legend>Vzhľad</legend>
-<label for="size">Veľkosť štítkov</label><select id="size"><option value="compact">Kompaktná</option><option value="normal">Normálna</option></select>
-<label class="check"><input type="checkbox" id="pill"> Zaoblené štítky v tvare pilulky</label>
-<label for="radius">Zaoblenie rohov (px)</label><input type="number" id="radius" min="0" max="100" step="1" required>
-<label class="check"><input type="checkbox" id="nativeRowColors"> Zachovať natívne prefarbovanie riadkov podľa štítku</label>
-<p class="help">Farby štítkov sa preberajú z Thunderbirdu. Farba textu sa automaticky volí medzi čiernou a bielou pre vyšší kontrast.</p>
+<fieldset><legend data-i18n="appearance">Appearance</legend>
+<label for="size" data-i18n="sizeLabel">Badge size</label><select id="size"><option value="compact" data-i18n="compact">Compact</option><option value="normal" data-i18n="normal">Normal</option></select>
+<label class="check"><input type="checkbox" id="pill"> <span data-i18n="pillLabel">Pill-shaped badges</span></label>
+<label for="radius" data-i18n="radiusLabel">Corner radius (px)</label><input type="number" id="radius" min="0" max="100" step="1" required>
+<label class="check"><input type="checkbox" id="nativeRowColors"> <span data-i18n="nativeColorsLabel">Keep native tag-based row colors</span></label>
+<p class="help" data-i18n="colorHelp">Badge colors come from Thunderbird. Text is automatically black or white for higher contrast.</p>
 </fieldset>
-<fieldset><legend>Diagnostika</legend><label class="check"><input type="checkbox" id="debug"> Zapnúť debug logging</label><p class="help">Diagnostika sa zapisuje do chybovej konzoly. Nezapisuje predmety ani obsah správ.</p></fieldset>
-<div class="actions"><button type="submit">Uložiť nastavenia</button><button type="button" id="reset">Obnoviť predvolené</button><span id="status" role="status" aria-live="polite"></span></div>
+<fieldset><legend data-i18n="diagnostics">Diagnostics</legend><label class="check"><input type="checkbox" id="debug"> <span data-i18n="debugLabel">Enable debug logging</span></label><p class="help" data-i18n="debugHelp">Diagnostics are written to the error console. Message subjects and bodies are not logged.</p></fieldset>
+<div class="actions"><button type="submit" data-i18n="save">Save settings</button><button type="button" id="reset" data-i18n="reset">Restore defaults</button><span id="status" role="status" aria-live="polite"></span></div>
 </form>
-<section class="preview" aria-label="Ukážka vzhľadu"><h2>Ukážka</h2><div id="sample"><span id="sampleSubject">Stretnutie k projektu</span></div><p class="help">Ilustračné štítky; doplnok načíta vaše vlastné aj systémové štítky.</p></section>
-<footer>Správa štítkov zostáva v nastaveniach Thunderbirdu. Doplnok upravuje iba ich zobrazenie.</footer>
-</main><script src="../settings.js"></script><script src="options.js"></script>
+<section class="preview" aria-label="Preview" data-i18n-aria-label="preview"><h2 data-i18n="preview">Preview</h2><div id="sample"><span id="sampleSubject" data-i18n="sampleSubject">Project meeting</span></div><p class="help" data-i18n="previewHelp">Example tags; the add-on loads your own and built-in tags.</p></section>
+<footer data-i18n="footer">Manage tags in Thunderbird settings. This add-on only changes how they are displayed.</footer>
+</main><script src="../settings.js"></script><script src="i18n.js"></script><script src="options.js"></script>
 </body></html>

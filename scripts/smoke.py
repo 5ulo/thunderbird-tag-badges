@@ -39,7 +39,7 @@ user_pref("mailnews.database.global.indexer.enabled", false);
     target = extensions / (manifest['browser_specific_settings']['gecko']['id'] + '.xpi')
     with ZipFile(target, 'w') as archive:
         files = ['manifest.json', 'settings.js', 'background.js']
-        for directory in ('experiments', 'options'):
+        for directory in ('experiments', 'options', '_locales'):
             files.extend(str(p.relative_to(root)) for p in (root / directory).rglob('*') if p.is_file())
         for name in files:
             overrides = {'experiments/tagBadges/api.js':api, 'experiments/tagBadges/schema.json':json.dumps(schema), 'background.js':background, 'options/options.js':options}
